@@ -157,6 +157,19 @@ namespace mfs_manager
             file.Close();
         }
 
+        public void Save(string filepath)
+        {
+            byte[] volume = RAMVolume.SaveToArray();
+
+            Array.Copy(volume, 0, Data, OffsetToMFSRAM, volume.Length);
+            Array.Copy(volume, 0, Data, OffsetToMFSRAM + volume.Length, volume.Length);
+
+            FileStream file = new FileStream(filepath, FileMode.Create);
+            file.Write(Data, 0, Data.Length);
+            file.Close();
+        }
+
+        // Additional Methods
         public byte[] ReadFileData(MFSFile file)
         {
             byte[] filedata = new byte[file.Size];
@@ -228,6 +241,11 @@ namespace mfs_manager
 
         public MFSRAMVolume(byte[] Data, int Offset)
         {
+            Load(Data, Offset);
+        }
+
+        public void Load(byte[] Data, int Offset)
+        {
             Attributes.isWriteProtected = (Data[Offset + 0x0E] & 0x80) != 0;
             Attributes.isVolumeReadProtected = (Data[Offset + 0x0E] & 0x40) != 0;
             Attributes.isVolumeWriteProtected = (Data[Offset + 0x0E] & 0x20) != 0;
@@ -263,6 +281,48 @@ namespace mfs_manager
                 }
             }
         }
+
+        public byte[] SaveToArray()
+        {
+            byte[] temp = new byte[Leo.LBAToByte(DiskType, Leo.RamStartLBA[DiskType], 3)];
+            Console.WriteLine(temp.Length);
+
+            Util.WriteStringN(MFS.RAM_ID, temp, 0, MFS.RAM_ID.Length);
+            temp[0x0E] = (byte)(0 | (Attributes.isVolumeWriteProtected ? 0x20 : 0) | (Attributes.isVolumeReadProtected ? 0x40 : 0) | (Attributes.isWriteProtected ? 0x80 : 0));
+            temp[0x0F] = (byte)DiskType;
+
+            Util.WriteStringN(Name, temp, 0x10, 0x14);
+            Util.WriteBEU32(Date.Save(), temp, 0x24);
+            Util.WriteBEU16(Renewal, temp, 0x28);
+            temp[0x2A] = Country;
+
+            //Save FAT Entries
+            for (int i = 0; i < FAT.Length; i++)
+            {
+                Util.WriteBEU16(FAT[i], temp, 0x3C + (i * 2));
+            }
+
+            //Save File Entries 0x16B0
+            for (int i = 0; i < Entries.Count; i++)
+            {
+                byte[] tempentry;
+                if (Entries[i].GetType() == typeof(MFSDirectory))
+                    tempentry = ((MFSDirectory)Entries[i]).Save();
+                else
+                    tempentry = ((MFSFile)Entries[i]).Save();
+                Array.Copy(tempentry, 0, temp, 0x16B0 + (0x30 * i), 0x30);
+            }
+
+            //Checksum
+            uint crc = 0;
+            for (int i = 0; i < (temp.Length / 4); i++)
+            {
+                crc ^= Util.ReadBEU32(temp, i * 4);
+            }
+            Util.WriteBEU32(crc, temp, 0x2C);
+
+            return temp;
+        }
     }
 
     public class MFSEntry
@@ -284,9 +344,9 @@ namespace mfs_manager
 
         public void LoadEntry(byte[] Data, int Offset)
         {
-            Attributes.CopyLimit = (Util.ReadBEU16(Data, Offset) & 0x200) != 0;
-            Attributes.Encode = (Util.ReadBEU16(Data, Offset) & 0x400) != 0;
-            Attributes.Hidden = (Util.ReadBEU16(Data, Offset) & 0x800) != 0;
+            Attributes.CopyLimit = (Util.ReadBEU16(Data, Offset) & 0x0200) != 0;
+            Attributes.Encode = (Util.ReadBEU16(Data, Offset) & 0x0400) != 0;
+            Attributes.Hidden = (Util.ReadBEU16(Data, Offset) & 0x0800) != 0;
             Attributes.DisableRead = (Util.ReadBEU16(Data, Offset) & 0x1000) != 0;
             Attributes.DisableWrite = (Util.ReadBEU16(Data, Offset) & 0x2000) != 0;
 
@@ -298,6 +358,25 @@ namespace mfs_manager
 
             Renewal = Data[Offset + 0x2A];
             Date = new MFS.Date(Util.ReadBEU32(Data, Offset + 0x2C));
+        }
+
+        public byte[] SaveEntry()
+        {
+            byte[] temp = new byte[0x30];
+
+            //Attributes
+            temp[0] = (byte)(0 | (Attributes.CopyLimit ? 0x02 : 0) | (Attributes.Encode ? 0x04 : 0) | (Attributes.Hidden ? 0x08 : 0)
+                 | (Attributes.DisableRead ? 0x10 : 0) | (Attributes.DisableWrite ? 0x20 : 0));
+
+            Util.WriteBEU16(ParentDirectory, temp, 2);
+            Util.WriteStringN(CompanyCode, temp, 4, 2);
+            Util.WriteStringN(GameCode, temp, 6, 4);
+            Util.WriteStringN(Name, temp, 0x10, 0x14);
+
+            temp[0x2A] = Renewal;
+            Util.WriteBEU32(Date.Save(), temp, 0x2C);
+
+            return temp;
         }
     }
 
@@ -313,6 +392,16 @@ namespace mfs_manager
         public void Load(byte[] Data, int Offset)
         {
             DirectoryID = Util.ReadBEU16(Data, Offset + 0x0A);
+        }
+
+        public byte[] Save()
+        {
+            byte[] temp = SaveEntry();
+
+            Util.WriteBEU16(DirectoryID, temp, 0x0A);
+            temp[0] |= 0x80;
+
+            return temp;
         }
     }
 
@@ -336,6 +425,19 @@ namespace mfs_manager
 
             Ext = Util.ReadStringN(Data, Offset + 0x24, 5);
             CopyNb = Data[Offset + 0x29];
+        }
+
+        public byte[] Save()
+        {
+            byte[] temp = SaveEntry();
+
+            Util.WriteBEU16(FATEntry, temp, 0x0A);
+            Util.WriteBEU32(Size, temp, 0x0C);
+
+            Util.WriteStringN(Ext, temp, 0x24, 5);
+            temp[0x29] = CopyNb;
+            temp[0] |= 0x40;
+            return temp;
         }
     }
 }

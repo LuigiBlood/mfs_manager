@@ -33,6 +33,8 @@ namespace mfs_manager
                         //fileExt.Close();
                     }
                 }
+
+                test.Save(args[0] + ".new.ram");
             }
         }
     }

@@ -22,5 +22,32 @@ namespace mfs_manager
         {
             return Encoding.GetEncoding(932).GetString(Data, Offset, Size).TrimEnd('\x00');
         }
+
+        public static void WriteBEU32(uint Input, byte[] Data, int Offset)
+        {
+            Data[Offset + 0] = (byte)((Input >> 24) & 0xFF);
+            Data[Offset + 1] = (byte)((Input >> 16) & 0xFF);
+            Data[Offset + 2] = (byte)((Input >> 8) & 0xFF);
+            Data[Offset + 3] = (byte)((Input >> 0) & 0xFF);
+        }
+
+        public static void WriteBEU16(ushort Input, byte[] Data, int Offset)
+        {
+            Data[Offset + 0] = (byte)((Input >> 8) & 0xFF);
+            Data[Offset + 1] = (byte)((Input >> 0) & 0xFF);
+        }
+
+        public static void WriteStringN(string Input, byte[] Data, int Offset, int Size)
+        {
+            byte[] temp = new byte[Size];
+            for (int i = 0; i < Size; i++)
+                temp[i] = 0;
+
+            byte[] text = Encoding.Convert(Encoding.Unicode, Encoding.GetEncoding(932), Encoding.Unicode.GetBytes(Input));
+            Array.Copy(text, temp, Math.Min(text.Length, Size));
+
+            Array.Copy(temp, 0, Data, Offset, Size);
+
+        }
     }
 }
