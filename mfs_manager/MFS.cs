@@ -126,8 +126,6 @@ namespace mfs_manager
                 byte[] test = new byte[MFS.RAM_ID.Length];
                 file.Read(test, 0, test.Length);
 
-                Console.WriteLine(Encoding.ASCII.GetString(test));
-
                 if (Encoding.ASCII.GetString(test).Equals(MFS.RAM_ID))
                 {
                     Format = MFS.DiskFormat.RAM;
@@ -205,23 +203,27 @@ namespace mfs_manager
             return null;
         }
 
-        public string GetFilePath(MFSFile file)
+        public string GetFullEntryPath(MFSEntry file)
         {
-            return GetDirectoryPath(file) + file.Name + "." + file.Ext;
+            string temp = GetDirectoryEntryPath(file) + file.Name;
+
+            if (file.GetType() == typeof(MFSFile))
+                temp += "." + ((MFSFile)file).Ext;
+
+            return temp;
         }
 
-        public string GetDirectoryPath(MFSFile file)
+        public string GetDirectoryEntryPath(MFSEntry file)
         {
             string temp = "";
             ushort dir_id = 0;
             MFSDirectory dir = GetDirectoryFromID(file.ParentDirectory);
-            do
+            while (dir != null)
             {
                 dir_id = dir.ParentDirectory;
                 temp = dir.Name + (dir_id != 0xFFFE ? "/" : "") + temp;
                 dir = GetDirectoryFromID(dir_id);
             }
-            while (dir_id != 0xFFFE);
 
             return temp;
         }
