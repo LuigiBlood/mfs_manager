@@ -179,6 +179,39 @@ namespace mfs_manager
 
             return filedata;
         }
+
+        public MFSDirectory GetDirectoryFromID(ushort id)
+        {
+            foreach (MFSEntry entry in RAMVolume.Entries)
+            {
+                if (entry.GetType() == typeof(MFSDirectory) && ((MFSDirectory)entry).DirectoryID == id)
+                {
+                    return (MFSDirectory)entry;
+                }
+            }
+            return null;
+        }
+
+        public string GetFilePath(MFSFile file)
+        {
+            return GetDirectoryPath(file) + file.Name + "." + file.Ext;
+        }
+
+        public string GetDirectoryPath(MFSFile file)
+        {
+            string temp = "";
+            ushort dir_id = 0;
+            MFSDirectory dir = GetDirectoryFromID(file.ParentDirectory);
+            do
+            {
+                dir_id = dir.ParentDirectory;
+                temp = dir.Name + (dir_id != 0xFFFE ? "/" : "") + temp;
+                dir = GetDirectoryFromID(dir_id);
+            }
+            while (dir_id != 0xFFFE);
+
+            return temp;
+        }
     }
 
     public class MFSRAMVolume

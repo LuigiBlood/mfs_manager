@@ -22,15 +22,15 @@ namespace mfs_manager
                 {
                     if (entry.GetType() == typeof(MFSDirectory))
                     {
-                        Console.WriteLine(entry.Name);
+                        //Console.WriteLine(entry.Name);
                     }
                     else
                     {
-                        Console.WriteLine(entry.Name + "." + ((MFSFile)entry).Ext);
-                        byte[] data = test.ReadFileData((MFSFile)entry);
-                        FileStream fileExt = new FileStream(".\\extract\\" + entry.Name + "." + ((MFSFile)entry).Ext, FileMode.Create);
-                        fileExt.Write(data, 0, data.Length);
-                        fileExt.Close();
+                        Console.WriteLine(test.GetFilePath((MFSFile)entry));
+                        //byte[] data = test.ReadFileData((MFSFile)entry);
+                        //FileStream fileExt = new FileStream(".\\extract\\" + entry.Name + "." + ((MFSFile)entry).Ext, FileMode.Create);
+                        //fileExt.Write(data, 0, data.Length);
+                        //fileExt.Close();
                     }
                 }
             }
