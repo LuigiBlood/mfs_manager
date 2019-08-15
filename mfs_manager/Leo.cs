@@ -8,10 +8,10 @@ namespace mfs_manager
 {
     static class Leo
     {
-        const int MAX_LBA = 0x10DB;
-        const int SIZE_LBA = MAX_LBA + 1;
-        const int SYSTEM_LBAS = 24;
-        const int DISKID_LBA = 14;
+        public const int MAX_LBA = 0x10DB;
+        public const int SIZE_LBA = MAX_LBA + 1;
+        public const int SYSTEM_LBAS = 24;
+        public const int DISKID_LBA = 14;
 
         const int SECTORS_PER_BLOCK = 85;
 

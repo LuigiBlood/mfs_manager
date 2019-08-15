@@ -170,7 +170,7 @@ namespace mfs_manager
         }
 
         // Additional Methods
-        public byte[] ReadFileData(MFSFile file)
+        public byte[] GetFileData(MFSFile file)
         {
             byte[] filedata = new byte[file.Size];
 
@@ -224,6 +224,130 @@ namespace mfs_manager
             while (dir_id != 0xFFFE);
 
             return temp;
+        }
+
+        public int GetTotalUsedSize()
+        {
+            int totalsize = 0;
+            for (int i = 6; i < Leo.SIZE_LBA - Leo.RamStartLBA[RAMVolume.DiskType]; i++)
+            {
+                switch (RAMVolume.FAT[i])
+                {
+                    case (ushort)MFS.FAT.Unused:
+                    case (ushort)MFS.FAT.Prohibited:
+                    case (ushort)MFS.FAT.DontManage:
+                        break;
+                    default:
+                        totalsize += Leo.LBAToByte(RAMVolume.DiskType, Leo.RamStartLBA[RAMVolume.DiskType] + i, 1);
+                        break;
+                }
+            }
+            return totalsize;
+        }
+
+        public int GetFreeSpace()
+        {
+            int unused = Leo.RamSize[RAMVolume.DiskType] - GetTotalUsedSize() - Leo.LBAToByte(RAMVolume.DiskType, Leo.RamStartLBA[RAMVolume.DiskType], 6);
+
+            return unused;
+        }
+
+        public int[] FindEntriesByName(string _name)
+        {
+            List<int> ids = new List<int>();
+
+            for (int i = 0; i < RAMVolume.Entries.Count; i++)
+            {
+                if (RAMVolume.Entries[i].Name.Equals(_name))
+                {
+                    ids.Add(i);
+                }
+            }
+
+            return ids.ToArray();
+        }
+
+        public bool CheckFileAlreadyExists(string _filename)
+        {
+            string _name = Path.GetFileNameWithoutExtension(_filename);
+            string _ext = Path.GetExtension(_filename).Substring(1);
+
+            return CheckFileAlreadyExists(_name, _ext);
+        }
+
+        public bool CheckFileAlreadyExists(string _name, string _ext)
+        {
+            foreach (MFSEntry entry in RAMVolume.Entries)
+            {
+                if (entry.GetType() == typeof(MFSFile))
+                {
+                    if (((MFSFile)entry).Name.Equals(_name) && ((MFSFile)entry).Ext.Equals(_ext))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        public bool CheckDirectoryAlreadyExists(string _name)
+        {
+            foreach (MFSEntry entry in RAMVolume.Entries)
+            {
+                if (entry.GetType() == typeof(MFSDirectory))
+                {
+                    if (((MFSDirectory)entry).Name.Equals(_name))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        //File Management
+        public bool InsertFile(byte[] filedata, string name, ushort dir = 0)
+        {
+            string _name = Path.GetFileNameWithoutExtension(name);
+            string _ext = Path.GetExtension(name).Substring(1);
+
+            MFSFile file = new MFSFile(_name, RAMVolume.Entries[0].CompanyCode, RAMVolume.Entries[0].GameCode, _ext, (uint)filedata.Length, dir);
+            return InsertFile(filedata, file);
+        }
+
+        public bool InsertFile(byte[] filedata, MFSFile file)
+        {
+            if (CheckFileAlreadyExists(file.Name, file.Ext))
+                return false;
+            if (GetFreeSpace() < filedata.Length)
+                return false;
+
+            int FATentry = -1;
+            int lastFATentry = -1;
+            int offset = 0;
+            for (int i = 6; i < Leo.SIZE_LBA - Leo.RamStartLBA[RAMVolume.DiskType]; i++)
+            {
+                if (RAMVolume.FAT[i] == (ushort)MFS.FAT.Unused)
+                {
+                    if (FATentry == -1)
+                    {
+                        FATentry = i;
+                        file.FATEntry = (ushort)i;
+                    }
+                    //Write File Data
+                    Array.Copy(filedata, offset, Data, OffsetToMFSRAM + Leo.LBAToByte(RAMVolume.DiskType, Leo.RamStartLBA[RAMVolume.DiskType], i), Math.Min(Leo.LBAToByte(RAMVolume.DiskType, Leo.RamStartLBA[RAMVolume.DiskType] + i, 1), filedata.Length - offset));
+                    offset += Math.Min(Leo.LBAToByte(RAMVolume.DiskType, Leo.RamStartLBA[RAMVolume.DiskType] + i, 1), filedata.Length - offset);
+                    if (lastFATentry != -1)
+                    {
+                        RAMVolume.FAT[lastFATentry] = (ushort)i;
+                    }
+                    if (offset == filedata.Length)
+                    {
+                        RAMVolume.FAT[i] = (ushort)MFS.FAT.LastFileBlock;
+
+                        RAMVolume.Entries.Add(file);
+                        return true;
+                    }
+                    lastFATentry = i;
+                }
+            }
+            return false;
         }
     }
 
@@ -285,7 +409,6 @@ namespace mfs_manager
         public byte[] SaveToArray()
         {
             byte[] temp = new byte[Leo.LBAToByte(DiskType, Leo.RamStartLBA[DiskType], 3)];
-            Console.WriteLine(temp.Length);
 
             Util.WriteStringN(MFS.RAM_ID, temp, 0, MFS.RAM_ID.Length);
             temp[0x0E] = (byte)(0 | (Attributes.isVolumeWriteProtected ? 0x20 : 0) | (Attributes.isVolumeReadProtected ? 0x40 : 0) | (Attributes.isWriteProtected ? 0x80 : 0));
@@ -336,6 +459,21 @@ namespace mfs_manager
 
         public byte Renewal;
         public MFS.Date Date;
+
+        public MFSEntry(string _name, string _ccode, string _gcode, ushort _dir = 0)
+        {
+            Attributes.CopyLimit = false;
+            Attributes.Encode = false;
+            Attributes.Hidden = false;
+            Attributes.DisableRead = false;
+            Attributes.DisableWrite = false;
+            Name = _name;
+            CompanyCode = _ccode;
+            GameCode = _gcode;
+            ParentDirectory = _dir;
+            Renewal = 0;
+            Date = new MFS.Date();
+        }
 
         public MFSEntry(byte[] Data, int Offset)
         {
@@ -412,6 +550,14 @@ namespace mfs_manager
 
         public string Ext;
         public byte CopyNb;
+
+        public MFSFile(string _name, string _ccode, string _gcode, string _ext, uint _size, ushort _dir = 0) : base(_name, _ccode, _gcode, _dir)
+        {
+            Ext = _ext;
+            Size = _size;
+            FATEntry = 0xFFFF;
+            CopyNb = 0;
+        }
 
         public MFSFile(byte[] Data, int Offset) : base(Data, Offset)
         {

@@ -8,6 +8,7 @@ namespace mfs_manager
 {
     public static class Util
     {
+        //Read Methods
         public static uint ReadBEU32(byte[] Data, int Offset)
         {
             return (uint)((Data[Offset + 0] << 24) | (Data[Offset + 1] << 16) | (Data[Offset + 2] << 8) | (Data[Offset + 3] << 0));
@@ -23,6 +24,7 @@ namespace mfs_manager
             return Encoding.GetEncoding(932).GetString(Data, Offset, Size).TrimEnd('\x00');
         }
 
+        //Write Methods
         public static void WriteBEU32(uint Input, byte[] Data, int Offset)
         {
             Data[Offset + 0] = (byte)((Input >> 24) & 0xFF);
