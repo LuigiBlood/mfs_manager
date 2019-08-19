@@ -23,40 +23,40 @@ namespace mfs_manager
             }
             else if (args.Length > 1)
             {
-                MFSDisk test = new MFSDisk(args[0]);
-                if (test.Format == MFS.DiskFormat.Invalid)
+                MFSDisk mfsDisk = new MFSDisk(args[0]);
+                if (mfsDisk.Format == MFS.DiskFormat.Invalid)
                 {
                     Console.WriteLine("Error loading RAM file");
                 }
 
                 if (args[1].Equals("-d"))
                 {
-                    foreach (MFSEntry entry in test.RAMVolume.Entries)
+                    foreach (MFSEntry entry in mfsDisk.RAMVolume.Entries)
                     {
                         if (entry.GetType() == typeof(MFSDirectory))
                         {
-                            Console.WriteLine(((MFSDirectory)entry).DirectoryID + ": " + test.GetFullEntryPath(entry));
+                            Console.WriteLine(((MFSDirectory)entry).DirectoryID + ": " + MFSRAMUtil.GetFullEntryPath(mfsDisk, entry));
                         }
                     }
                 }
                 else if (args[1].Equals("-f"))
                 {
-                    foreach (MFSEntry entry in test.RAMVolume.Entries)
+                    foreach (MFSEntry entry in mfsDisk.RAMVolume.Entries)
                     {
                         if (entry.GetType() == typeof(MFSFile))
                         {
-                            Console.WriteLine(test.GetFullEntryPath(entry));
+                            Console.WriteLine(MFSRAMUtil.GetFullEntryPath(mfsDisk, entry));
                         }
                     }
                 }
                 else if (args[1].Equals("-e"))
                 {
-                    foreach (MFSEntry entry in test.RAMVolume.Entries)
+                    foreach (MFSEntry entry in mfsDisk.RAMVolume.Entries)
                     {
                         if (entry.GetType() == typeof(MFSFile))
                         {
-                            Console.WriteLine("Extract " + test.GetFullEntryPath(entry));
-                            byte[] data = test.GetFileData((MFSFile)entry);
+                            Console.WriteLine("Extract " + MFSRAMUtil.GetFullEntryPath(mfsDisk, entry));
+                            byte[] data = MFSRAMUtil.GetFileData(mfsDisk, (MFSFile)entry);
                             FileStream fileExt = new FileStream(".\\extract\\" + entry.Name + "." + ((MFSFile)entry).Ext, FileMode.Create);
                             fileExt.Write(data, 0, data.Length);
                             fileExt.Close();
@@ -69,11 +69,11 @@ namespace mfs_manager
                     byte[] testArray = new byte[testAdd.Length];
                     testAdd.Read(testArray, 0, (int)testAdd.Length);
                     testAdd.Close();
-                    if (!test.InsertFile(testArray, Path.GetFileName(args[2]), ushort.Parse(args[3])))
+                    if (!MFSRAMUtil.InsertFile(mfsDisk, testArray, Path.GetFileName(args[2]), ushort.Parse(args[3])))
                         Console.WriteLine("Could not insert file");
                     else
                         Console.WriteLine("File inserted successfully");
-                    test.Save(args[0] + ".new.ram");
+                    mfsDisk.Save(args[0] + ".new.ram");
                 }
             }
         }
