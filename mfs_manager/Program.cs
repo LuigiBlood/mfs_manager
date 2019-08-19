@@ -61,6 +61,7 @@ namespace mfs_manager
                             FileStream fileExt = new FileStream(".\\extract\\" + Path.GetFileName(args[2]), FileMode.Create);
                             fileExt.Write(data, 0, data.Length);
                             fileExt.Close();
+                            Console.WriteLine("Done");
                         }
                         else
                         {

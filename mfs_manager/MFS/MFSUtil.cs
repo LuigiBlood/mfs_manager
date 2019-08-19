@@ -12,28 +12,11 @@ namespace mfs_manager
         // Additional Methods
         public static byte[] ReadFile(MFSDisk mfsDisk, string filepath)
         {
-            MFSDirectory dir = GetDirectoryFromPath(mfsDisk, filepath);
-            string[] path = filepath.Split('/');
-            path[0] = "/";
-
-            Console.WriteLine(dir.Name);
-
-            string filename = Path.GetFileNameWithoutExtension(filepath);
-            string ext = Path.GetExtension(filepath);
-            if (ext != "")
-                ext = ext.Substring(1);
-
-            Console.WriteLine(filename + " - " + ext);
-
-            foreach (MFSFile file in GetAllFilesFromDirID(mfsDisk, dir.DirectoryID))
-            {
-                if (file.Name.Equals(filename) && file.Ext.Equals(ext))
-                {
-                    return ReadFile(mfsDisk, file);
-                }
-            }
-
-            return null;
+            MFSFile file = GetFileFromPath(mfsDisk, filepath);
+            if (file != null)
+                return ReadFile(mfsDisk, file);
+            else
+                return null;
         }
         
         public static byte[] ReadFile(MFSDisk mfsDisk, MFSFile file)
@@ -60,6 +43,28 @@ namespace mfs_manager
         }
 
         //Utilities
+        public static MFSFile GetFileFromPath(MFSDisk mfsDisk, string filepath)
+        {
+            MFSDirectory dir = GetDirectoryFromPath(mfsDisk, filepath);
+            string[] path = filepath.Split('/');
+            path[0] = "/";
+
+            string filename = Path.GetFileNameWithoutExtension(filepath);
+            string ext = Path.GetExtension(filepath);
+            if (ext != "")
+                ext = ext.Substring(1);
+
+            foreach (MFSFile file in GetAllFilesFromDirID(mfsDisk, dir.DirectoryID))
+            {
+                if (file.Name.Equals(filename) && file.Ext.Equals(ext))
+                {
+                    return file;
+                }
+            }
+
+            return null;
+        }
+        
         public static MFSDirectory GetDirectoryFromPath(MFSDisk mfsDisk, string filepath)
         {
             string[] path = filepath.Split('/');
