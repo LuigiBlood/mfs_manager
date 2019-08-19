@@ -172,6 +172,20 @@ namespace mfs_manager
 
             return temp;
         }
+
+        public string CheckShiftJIS()
+        {
+            //Temporary Function for testing
+            string temp = "";
+            byte[] tempbytes = SJISUtil.EncodeStringToSJIS(Name);
+
+            foreach (byte c in tempbytes)
+            {
+                temp += c.ToString("X2");
+            }
+
+            return temp;
+        }
     }
 
     public class MFSDirectory : MFSEntry

@@ -21,7 +21,7 @@ namespace mfs_manager
 
         public static string ReadStringN(byte[] Data, int Offset, int Size)
         {
-            return Encoding.GetEncoding(932).GetString(Data, Offset, Size).TrimEnd('\x00');
+            return Encoding.GetEncoding(932, new EncoderReplacementFallback(), new SJISUtil.CustomDecoder()).GetString(Data, Offset, Size).TrimEnd('\x00');
         }
 
         //Write Methods
@@ -45,7 +45,7 @@ namespace mfs_manager
             for (int i = 0; i < Size; i++)
                 temp[i] = 0;
 
-            byte[] text = Encoding.Convert(Encoding.Unicode, Encoding.GetEncoding(932), Encoding.Unicode.GetBytes(Input));
+            byte[] text = SJISUtil.EncodeStringToSJIS(Input);
             Array.Copy(text, temp, Math.Min(text.Length, Size));
 
             Array.Copy(temp, 0, Data, Offset, Size);

@@ -11,8 +11,9 @@ namespace mfs_manager
     {
         static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.Unicode;
             Console.WriteLine("64DD MFS Manager - by LuigiBlood");
-            if (args.Length == 0)
+            if (args.Length < 2)
             {
                 Console.WriteLine("Usage: mfs_manager <RAM file> <options>");
                 Console.WriteLine("<options> can be the following:");
@@ -22,7 +23,7 @@ namespace mfs_manager
                 Console.WriteLine("  -e <File Path>           : Extract specified file (must start with \"/\")");
                 Console.WriteLine("  -i <File> <Directory ID> : Insert <File> into <Directory ID>");
             }
-            else if (args.Length > 1)
+            else if (args.Length >= 2)
             {
                 MFSDisk mfsDisk = new MFSDisk(args[0]);
                 if (mfsDisk.Format == MFS.DiskFormat.Invalid)
@@ -36,7 +37,7 @@ namespace mfs_manager
                     {
                         if (entry.GetType() == typeof(MFSDirectory))
                         {
-                            Console.WriteLine(((MFSDirectory)entry).DirectoryID + ": " + MFSRAMUtil.GetFullEntryPath(mfsDisk, entry));
+                            Console.WriteLine(((MFSDirectory)entry).DirectoryID + ": " + MFSRAMUtil.GetFullEntryPath(mfsDisk, entry));// + " (" + ((MFSDirectory)entry).CheckShiftJIS() + ")");
                         }
                     }
                 }

@@ -65,9 +65,9 @@ namespace mfs_manager
             return null;
         }
         
-        public static MFSDirectory GetDirectoryFromPath(MFSDisk mfsDisk, string filepath)
+        public static MFSDirectory GetDirectoryFromPath(MFSDisk mfsDisk, string dirpath)
         {
-            string[] path = filepath.Split('/');
+            string[] path = dirpath.Split('/');
             path[0] = "/";
 
             return GetDirectoryFromList(mfsDisk, path.Take(path.Length - 1).ToArray(), GetAllDirectoriesFromDirID(mfsDisk, 0xFFFE));
