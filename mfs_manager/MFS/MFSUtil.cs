@@ -10,7 +10,33 @@ namespace mfs_manager
     public static class MFSRAMUtil
     {
         // Additional Methods
-        public static byte[] GetFileData(MFSDisk mfsDisk, MFSFile file)
+        public static byte[] ReadFile(MFSDisk mfsDisk, string filepath)
+        {
+            MFSDirectory dir = GetDirectoryFromPath(mfsDisk, filepath);
+            string[] path = filepath.Split('/');
+            path[0] = "/";
+
+            Console.WriteLine(dir.Name);
+
+            string filename = Path.GetFileNameWithoutExtension(filepath);
+            string ext = Path.GetExtension(filepath);
+            if (ext != "")
+                ext = ext.Substring(1);
+
+            Console.WriteLine(filename + " - " + ext);
+
+            foreach (MFSFile file in GetAllFilesFromDirID(mfsDisk, dir.DirectoryID))
+            {
+                if (file.Name.Equals(filename) && file.Ext.Equals(ext))
+                {
+                    return ReadFile(mfsDisk, file);
+                }
+            }
+
+            return null;
+        }
+        
+        public static byte[] ReadFile(MFSDisk mfsDisk, MFSFile file)
         {
             byte[] filedata = new byte[file.Size];
 
@@ -33,6 +59,61 @@ namespace mfs_manager
             return filedata;
         }
 
+        //Utilities
+        public static MFSDirectory GetDirectoryFromPath(MFSDisk mfsDisk, string filepath)
+        {
+            string[] path = filepath.Split('/');
+            path[0] = "/";
+
+            return GetDirectoryFromList(mfsDisk, path.Take(path.Length - 1).ToArray(), GetAllDirectoriesFromDirID(mfsDisk, 0xFFFE));
+        }
+
+        public static MFSDirectory GetDirectoryFromList(MFSDisk mfsDisk, string[] names, MFSDirectory[] list)
+        {
+            foreach (MFSDirectory dir in list)
+            {
+                if (dir.Name == names[0])
+                {
+                    if (names.Length > 1)
+                        return GetDirectoryFromList(mfsDisk, names.Skip(1).ToArray(), GetAllDirectoriesFromDirID(mfsDisk, dir.DirectoryID));
+                    else
+                        return dir;
+                }
+            }
+            return null;
+        }
+
+        public static MFSDirectory[] GetAllDirectoriesFromDirID(MFSDisk mfsDisk, ushort id)
+        {
+            List<MFSDirectory> list = new List<MFSDirectory>();
+
+            foreach (MFSEntry entry in mfsDisk.RAMVolume.Entries)
+            {
+                if (entry.GetType() == typeof(MFSDirectory) && ((MFSDirectory)entry).ParentDirectory == id)
+                {
+                    list.Add((MFSDirectory)entry);
+                }
+            }
+
+            return list.ToArray();
+        }
+
+        public static MFSFile[] GetAllFilesFromDirID(MFSDisk mfsDisk, ushort id)
+        {
+            List<MFSFile> list = new List<MFSFile>();
+
+            foreach (MFSEntry entry in mfsDisk.RAMVolume.Entries)
+            {
+                if (entry.GetType() == typeof(MFSFile))
+                {
+                    if (id == 0xFFFF || ((MFSFile)entry).ParentDirectory == id)
+                        list.Add((MFSFile)entry);
+                }
+            }
+
+            return list.ToArray();
+        }
+
         public static MFSDirectory GetDirectoryFromID(MFSDisk mfsDisk, ushort id)
         {
             foreach (MFSEntry entry in mfsDisk.RAMVolume.Entries)
@@ -49,7 +130,7 @@ namespace mfs_manager
         {
             string temp = GetDirectoryEntryPath(mfsDisk, file) + file.Name;
 
-            if (file.GetType() == typeof(MFSFile))
+            if (file.GetType() == typeof(MFSFile) && ((MFSFile)file).Ext != "")
                 temp += "." + ((MFSFile)file).Ext;
 
             return temp;
@@ -114,24 +195,21 @@ namespace mfs_manager
         public static bool CheckFileAlreadyExists(MFSDisk mfsDisk, string _filename, ushort _dir = 0xFFFF)
         {
             string _name = Path.GetFileNameWithoutExtension(_filename);
-            string _ext = Path.GetExtension(_filename).Substring(1);
+            string _ext = Path.GetExtension(_filename);
+
+            if (_ext != "")
+                _ext = _ext.Substring(1);
 
             return CheckFileAlreadyExists(mfsDisk, _name, _ext, _dir);
         }
 
         public static bool CheckFileAlreadyExists(MFSDisk mfsDisk, string _name, string _ext, ushort _dir = 0xFFFF)
         {
-            foreach (MFSEntry entry in mfsDisk.RAMVolume.Entries)
+            foreach (MFSFile file in GetAllFilesFromDirID(mfsDisk, _dir))
             {
-                if (entry.GetType() == typeof(MFSFile))
+                if (file.Name.Equals(_name) && file.Ext.Equals(_ext))
                 {
-                    if (((MFSFile)entry).Name.Equals(_name) && ((MFSFile)entry).Ext.Equals(_ext))
-                    {
-                        if (_dir == 0xFFFF)
-                            return true;
-                        else if (((MFSFile)entry).ParentDirectory == _dir)
-                            return true;
-                    }
+                    return true;
                 }
             }
             return false;
@@ -150,11 +228,14 @@ namespace mfs_manager
             return false;
         }
 
-        //File Management
+        //Low Level File Management
         public static bool InsertFile(MFSDisk mfsDisk, byte[] filedata, string name, ushort dir = 0)
         {
             string _name = Path.GetFileNameWithoutExtension(name);
-            string _ext = Path.GetExtension(name).Substring(1);
+            string _ext = Path.GetExtension(name);
+
+            if (_ext != "")
+                _ext = _ext.Substring(1);
 
             MFSFile file = new MFSFile(_name, mfsDisk.RAMVolume.Entries[0].CompanyCode, mfsDisk.RAMVolume.Entries[0].GameCode, _ext, (uint)filedata.Length, dir);
             return InsertFile(mfsDisk, filedata, file);

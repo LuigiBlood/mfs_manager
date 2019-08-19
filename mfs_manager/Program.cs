@@ -16,9 +16,10 @@ namespace mfs_manager
             {
                 Console.WriteLine("Usage: mfs_manager <RAM file> <options>");
                 Console.WriteLine("<options> can be the following:");
-                Console.WriteLine("  -d : List all directories with their IDs");
-                Console.WriteLine("  -f : List all files");
-                Console.WriteLine("  -e : Extract all files");
+                Console.WriteLine("  -d                       : List all directories with their IDs");
+                Console.WriteLine("  -f                       : List all files");
+                Console.WriteLine("  -e                       : Extract all files");
+                Console.WriteLine("  -e <File Path>           : Extract specified file (must start with \"/\")");
                 Console.WriteLine("  -i <File> <Directory ID> : Insert <File> into <Directory ID>");
             }
             else if (args.Length > 1)
@@ -51,15 +52,33 @@ namespace mfs_manager
                 }
                 else if (args[1].Equals("-e"))
                 {
-                    foreach (MFSEntry entry in mfsDisk.RAMVolume.Entries)
+                    if (args.Length > 2)
                     {
-                        if (entry.GetType() == typeof(MFSFile))
+                        Console.WriteLine("Extract " + args[2]);
+                        byte[] data = MFSRAMUtil.ReadFile(mfsDisk, args[2]);
+                        if (data != null)
                         {
-                            Console.WriteLine("Extract " + MFSRAMUtil.GetFullEntryPath(mfsDisk, entry));
-                            byte[] data = MFSRAMUtil.GetFileData(mfsDisk, (MFSFile)entry);
-                            FileStream fileExt = new FileStream(".\\extract\\" + entry.Name + "." + ((MFSFile)entry).Ext, FileMode.Create);
+                            FileStream fileExt = new FileStream(".\\extract\\" + Path.GetFileName(args[2]), FileMode.Create);
                             fileExt.Write(data, 0, data.Length);
                             fileExt.Close();
+                        }
+                        else
+                        {
+                            Console.WriteLine("Error");
+                        }
+                    }
+                    else
+                    {
+                        foreach (MFSEntry entry in mfsDisk.RAMVolume.Entries)
+                        {
+                            if (entry.GetType() == typeof(MFSFile))
+                            {
+                                Console.WriteLine("Extract " + MFSRAMUtil.GetFullEntryPath(mfsDisk, entry));
+                                byte[] data = MFSRAMUtil.ReadFile(mfsDisk, (MFSFile)entry);
+                                FileStream fileExt = new FileStream(".\\extract\\" + entry.Name + (((MFSFile)entry).Ext != "" ? "." : "") + ((MFSFile)entry).Ext, FileMode.Create);
+                                fileExt.Write(data, 0, data.Length);
+                                fileExt.Close();
+                            }
                         }
                     }
                 }

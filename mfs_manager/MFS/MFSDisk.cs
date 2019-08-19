@@ -23,6 +23,12 @@ namespace mfs_manager
         void Load(string filepath)
         {
             //Assume RAM format for now
+            if (!File.Exists(filepath))
+            {
+                Format = MFS.DiskFormat.Invalid;
+                return;
+            }
+
             FileStream file = new FileStream(filepath, FileMode.Open);
 
             if (file.Length >= Leo.RamSize[5])
