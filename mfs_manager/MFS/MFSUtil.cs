@@ -23,6 +23,7 @@ namespace mfs_manager
         {
             byte[] filedata = new byte[file.Size];
 
+            //Add FAT Entries and Copy to data to blocks
             ushort nextblock = file.FATEntry;
             uint offset = 0;
             uint size = file.Size;
@@ -40,6 +41,37 @@ namespace mfs_manager
             while (nextblock != (ushort)MFS.FAT.LastFileBlock);
 
             return filedata;
+        }
+
+        public static bool DeleteFile(MFSDisk mfsDisk, string filepath)
+        {
+            MFSFile file = GetFileFromPath(mfsDisk, filepath);
+            if (file != null)
+                return DeleteFile(mfsDisk, file);
+            else
+                return false;
+        }
+
+        public static bool DeleteFile(MFSDisk mfsDisk, MFSFile file)
+        {
+            //Delete FAT Entries
+            ushort nextblock = file.FATEntry;
+            ushort lastblock = 0;
+            do
+            {
+                lastblock = nextblock;
+                nextblock = mfsDisk.RAMVolume.FAT[nextblock];
+                mfsDisk.RAMVolume.FAT[lastblock] = 0;
+            }
+            while (nextblock != (ushort)MFS.FAT.LastFileBlock);
+
+            //Delete File Data
+            if (mfsDisk.RAMVolume.Entries.Remove(file))
+            {
+                Console.WriteLine("found");
+            }
+
+            return true;
         }
 
         //Utilities
@@ -234,6 +266,13 @@ namespace mfs_manager
         }
 
         //Low Level File Management
+        public static bool InsertFile(MFSDisk mfsDisk, byte[] filedata, string name, string dir)
+        {
+            MFSDirectory _dir = GetDirectoryFromPath(mfsDisk, dir);
+
+            return InsertFile(mfsDisk, filedata, name, _dir.DirectoryID);
+        }
+
         public static bool InsertFile(MFSDisk mfsDisk, byte[] filedata, string name, ushort dir = 0)
         {
             string _name = Path.GetFileNameWithoutExtension(name);

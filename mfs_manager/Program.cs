@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace mfs_manager
 {
@@ -17,11 +18,12 @@ namespace mfs_manager
             {
                 Console.WriteLine("Usage: mfs_manager <RAM file> <options>");
                 Console.WriteLine("<options> can be the following:");
-                Console.WriteLine("  -d                       : List all directories with their IDs");
-                Console.WriteLine("  -f                       : List all files");
-                Console.WriteLine("  -e                       : Extract all files");
-                Console.WriteLine("  -e <File Path>           : Extract specified file (must start with \"/\")");
-                Console.WriteLine("  -i <File> <Directory ID> : Insert <File> into <Directory ID>");
+                Console.WriteLine("  -d                            : List all directories with their IDs");
+                Console.WriteLine("  -f                            : List all files");
+                Console.WriteLine("  -e                            : Extract all files");
+                Console.WriteLine("  -e <File Path>                : Extract specified file (must start with \"/\")");
+                Console.WriteLine("  -i <File> <Directory Path/ID> : Insert <File> into <Directory Path/ID> (Path must start AND end with \"/\")");
+                Console.WriteLine("  -r <File Path>                : Delete <File> (Path must start with \"/\")");
             }
             else if (args.Length >= 2)
             {
@@ -90,11 +92,36 @@ namespace mfs_manager
                     byte[] testArray = new byte[testAdd.Length];
                     testAdd.Read(testArray, 0, (int)testAdd.Length);
                     testAdd.Close();
-                    if (!MFSRAMUtil.InsertFile(mfsDisk, testArray, Path.GetFileName(args[2]), ushort.Parse(args[3])))
+                    bool file = false;
+                    if (args[3].StartsWith("/") && args[3].EndsWith("/"))
+                    {
+                        file = MFSRAMUtil.InsertFile(mfsDisk, testArray, Path.GetFileName(args[2]), args[3]);
+                    }
+                    else if (Regex.IsMatch(args[3], "^\\d+$"))
+                    {
+                        file = MFSRAMUtil.InsertFile(mfsDisk, testArray, Path.GetFileName(args[2]), ushort.Parse(args[3]));
+                    }
+                    if (!file)
                         Console.WriteLine("Could not insert file");
                     else
                         Console.WriteLine("File inserted successfully");
                     mfsDisk.Save(args[0] + ".new.ram");
+                }
+                else if (args[1].Equals("-r"))
+                {
+                    if (args.Length > 2)
+                    {
+                        Console.WriteLine("Delete " + args[2]);
+                        if (MFSRAMUtil.DeleteFile(mfsDisk, args[2]))
+                        {
+                            Console.WriteLine("Done");
+                            mfsDisk.Save(args[0] + ".new.ram");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Error");
+                        }
+                    }
                 }
             }
         }
