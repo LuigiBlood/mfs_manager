@@ -74,6 +74,33 @@ namespace mfs_manager
             return true;
         }
 
+        public static bool MoveFile(MFSDisk mfsDisk, string filepathin, string filepathout)
+        {
+            MFSFile file = GetFileFromPath(mfsDisk, filepathin);
+            if (file != null)
+            {
+                if (filepathout.StartsWith("/"))
+                {
+                    MFSDirectory dir = GetDirectoryFromPath(mfsDisk, filepathout);
+                    if (dir != null)
+                        file.ParentDirectory = dir.DirectoryID;
+                    else
+                        return false;
+                }
+                if (!filepathout.EndsWith("/"))
+                {
+                    file.Name = Path.GetFileNameWithoutExtension(filepathout);
+                    string newext = Path.GetExtension(filepathout);
+                    if (newext != "")
+                        newext = newext.Substring(1);
+                    file.Ext = newext;
+                }
+                return true;
+            }
+            else
+                return false;
+        }
+
         //Utilities
         public static MFSFile GetFileFromPath(MFSDisk mfsDisk, string filepath)
         {

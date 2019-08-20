@@ -24,6 +24,7 @@ namespace mfs_manager
                 Console.WriteLine("  -e <File Path>                : Extract specified file (must start with \"/\")");
                 Console.WriteLine("  -i <File> <Directory Path/ID> : Insert <File> into <Directory Path/ID> (Path must start AND end with \"/\")");
                 Console.WriteLine("  -r <File Path>                : Delete <File> (Path must start with \"/\")");
+                Console.WriteLine("  -m <File Path> <Dir/File Path>: Move <File> to <Directory> AND/OR rename if <File Path> (Path must start with \"/\")");
             }
             else if (args.Length >= 2)
             {
@@ -35,6 +36,8 @@ namespace mfs_manager
 
                 if (args[1].Equals("-d"))
                 {
+                    //Directory List
+                    Console.WriteLine("Directory List:");
                     foreach (MFSEntry entry in mfsDisk.RAMVolume.Entries)
                     {
                         if (entry.GetType() == typeof(MFSDirectory))
@@ -45,6 +48,8 @@ namespace mfs_manager
                 }
                 else if (args[1].Equals("-f"))
                 {
+                    //File List
+                    Console.WriteLine("File List:");
                     foreach (MFSEntry entry in mfsDisk.RAMVolume.Entries)
                     {
                         if (entry.GetType() == typeof(MFSFile))
@@ -55,6 +60,7 @@ namespace mfs_manager
                 }
                 else if (args[1].Equals("-e"))
                 {
+                    //Extract
                     if (args.Length > 2)
                     {
                         Console.WriteLine("Extract " + args[2]);
@@ -88,6 +94,7 @@ namespace mfs_manager
                 }
                 else if (args[1].Equals("-i") && args.Length > 3)
                 {
+                    //Insert File
                     FileStream testAdd = new FileStream(args[2], FileMode.Open);
                     byte[] testArray = new byte[testAdd.Length];
                     testAdd.Read(testArray, 0, (int)testAdd.Length);
@@ -109,6 +116,7 @@ namespace mfs_manager
                 }
                 else if (args[1].Equals("-r"))
                 {
+                    //Delete (-r emove)
                     if (args.Length > 2)
                     {
                         Console.WriteLine("Delete " + args[2]);
@@ -122,6 +130,17 @@ namespace mfs_manager
                             Console.WriteLine("Error");
                         }
                     }
+                }
+                else if (args[1].Equals("-m") && args.Length > 3)
+                {
+                    //Insert File
+                    if (MFSRAMUtil.MoveFile(mfsDisk, args[2], args[3]))
+                    {
+                        Console.WriteLine("Done");
+                        mfsDisk.Save(args[0] + ".new.ram");
+                    }
+                    else
+                        Console.WriteLine("File was not moved/renamed successfully");
                 }
             }
         }
