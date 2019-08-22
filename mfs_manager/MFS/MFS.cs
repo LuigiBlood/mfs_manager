@@ -99,5 +99,10 @@ namespace mfs_manager
                 return temp;
             }
         }
+
+        enum Error
+        {
+            Good = 0, Argument, Filename, FileNotExist, DiskFull, FileAlreadyExists
+        }
     }
 }

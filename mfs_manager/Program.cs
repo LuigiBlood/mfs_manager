@@ -102,16 +102,17 @@ namespace mfs_manager
                     bool file = false;
                     if (args[3].StartsWith("/") && args[3].EndsWith("/"))
                     {
-                        file = MFSRAMUtil.InsertFile(mfsDisk, testArray, Path.GetFileName(args[2]), args[3]);
+                        file = MFSRAMUtil.WriteFile(mfsDisk, testArray, args[3] + Path.GetFileName(args[2]));
                     }
                     else if (Regex.IsMatch(args[3], "^\\d+$"))
                     {
-                        file = MFSRAMUtil.InsertFile(mfsDisk, testArray, Path.GetFileName(args[2]), ushort.Parse(args[3]));
+                        file = MFSRAMUtil.WriteFile(mfsDisk, testArray, Path.GetFileName(args[2]), ushort.Parse(args[3]));
                     }
+
                     if (!file)
                         Console.WriteLine("Could not insert file");
                     else
-                        Console.WriteLine("File inserted successfully");
+                        Console.WriteLine("File " + Path.GetFileName(args[2]) + " inserted successfully");
                     mfsDisk.Save(args[0] + ".new.ram");
                 }
                 else if (args[1].Equals("-r"))

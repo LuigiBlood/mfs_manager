@@ -43,6 +43,64 @@ namespace mfs_manager
             return filedata;
         }
 
+        public static bool WriteFile(MFSDisk mfsDisk, byte[] filedata, string filepath)
+        {
+            MFSDirectory _dir = GetDirectoryFromPath(mfsDisk, filepath);
+
+            return WriteFile(mfsDisk, filedata, Path.GetFileName(filepath), _dir.DirectoryID);
+        }
+
+        public static bool WriteFile(MFSDisk mfsDisk, byte[] filedata, string name, ushort dir = 0)
+        {
+            string _name = Path.GetFileNameWithoutExtension(name);
+            string _ext = Path.GetExtension(name);
+
+            if (_ext.StartsWith("."))
+                _ext = _ext.Substring(1);
+
+            MFSFile file = new MFSFile(_name, mfsDisk.RAMVolume.Entries[0].CompanyCode, mfsDisk.RAMVolume.Entries[0].GameCode, _ext, (uint)filedata.Length, dir);
+            return WriteFile(mfsDisk, filedata, file);
+        }
+
+        public static bool WriteFile(MFSDisk mfsDisk, byte[] filedata, MFSFile file)
+        {
+            if (CheckIfFileAlreadyExists(mfsDisk, file.Name, file.Ext, file.ParentDirectory))
+                return false;
+            if (GetFreeSpaceSize(mfsDisk) < filedata.Length)
+                return false;
+
+            int FATentry = -1;
+            int lastFATentry = -1;
+            int offset = 0;
+            for (int i = 6; i < Leo.SIZE_LBA - Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType]; i++)
+            {
+                if (mfsDisk.RAMVolume.FAT[i] == (ushort)MFS.FAT.Unused)
+                {
+                    if (FATentry == -1)
+                    {
+                        FATentry = i;
+                        file.FATEntry = (ushort)i;
+                    }
+                    //Write File Data
+                    Array.Copy(filedata, offset, mfsDisk.Data, mfsDisk.OffsetToMFSRAM + Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType], i), Math.Min(Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + i, 1), filedata.Length - offset));
+                    offset += Math.Min(Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + i, 1), filedata.Length - offset);
+                    if (lastFATentry != -1)
+                    {
+                        mfsDisk.RAMVolume.FAT[lastFATentry] = (ushort)i;
+                    }
+                    if (offset == filedata.Length)
+                    {
+                        mfsDisk.RAMVolume.FAT[i] = (ushort)MFS.FAT.LastFileBlock;
+
+                        mfsDisk.RAMVolume.Entries.Add(file);
+                        return true;
+                    }
+                    lastFATentry = i;
+                }
+            }
+            return false;
+        }
+
         public static bool DeleteFile(MFSDisk mfsDisk, string filepath)
         {
             MFSFile file = GetFileFromPath(mfsDisk, filepath);
@@ -110,7 +168,7 @@ namespace mfs_manager
 
             string filename = Path.GetFileNameWithoutExtension(filepath);
             string ext = Path.GetExtension(filepath);
-            if (ext != "")
+            if (ext.StartsWith("."))
                 ext = ext.Substring(1);
 
             foreach (MFSFile file in GetAllFilesFromDirID(mfsDisk, dir.DirectoryID))
@@ -234,40 +292,26 @@ namespace mfs_manager
             return totalsize;
         }
 
-        public static int GetFreeSpace(MFSDisk mfsDisk)
+        public static int GetFreeSpaceSize(MFSDisk mfsDisk)
         {
             int unused = Leo.RamSize[mfsDisk.RAMVolume.DiskType] - GetTotalUsedSize(mfsDisk) - Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType], 6);
 
             return unused;
         }
 
-        public static int[] FindEntriesByName(MFSDisk mfsDisk, string _name)
-        {
-            List<int> ids = new List<int>();
-
-            for (int i = 0; i < mfsDisk.RAMVolume.Entries.Count; i++)
-            {
-                if (mfsDisk.RAMVolume.Entries[i].Name.Equals(_name))
-                {
-                    ids.Add(i);
-                }
-            }
-
-            return ids.ToArray();
-        }
-
-        public static bool CheckFileAlreadyExists(MFSDisk mfsDisk, string _filename, ushort _dir = 0xFFFF)
+        // As there can be multiple files with the same name, it is preferable to input a parent Directory ID.
+        public static bool CheckIfFileAlreadyExists(MFSDisk mfsDisk, string _filename, ushort _dir = 0xFFFF)
         {
             string _name = Path.GetFileNameWithoutExtension(_filename);
             string _ext = Path.GetExtension(_filename);
 
-            if (_ext != "")
+            if (_ext.StartsWith("."))
                 _ext = _ext.Substring(1);
 
-            return CheckFileAlreadyExists(mfsDisk, _name, _ext, _dir);
+            return CheckIfFileAlreadyExists(mfsDisk, _name, _ext, _dir);
         }
 
-        public static bool CheckFileAlreadyExists(MFSDisk mfsDisk, string _name, string _ext, ushort _dir = 0xFFFF)
+        public static bool CheckIfFileAlreadyExists(MFSDisk mfsDisk, string _name, string _ext, ushort _dir = 0xFFFF)
         {
             foreach (MFSFile file in GetAllFilesFromDirID(mfsDisk, _dir))
             {
@@ -279,73 +323,14 @@ namespace mfs_manager
             return false;
         }
 
-        public static bool CheckDirectoryAlreadyExists(MFSDisk mfsDisk, string _name)
+        // As there can be multiple directories with the same name, it is preferable to input a parent Directory ID. 
+        public static bool CheckIfDirectoryAlreadyExists(MFSDisk mfsDisk, string _name, ushort _dir = 0xFFFF)
         {
-            foreach (MFSEntry entry in mfsDisk.RAMVolume.Entries)
+            foreach (MFSDirectory entry in GetAllDirectoriesFromDirID(mfsDisk, _dir))
             {
-                if (entry.GetType() == typeof(MFSDirectory))
+                if (entry.Name.Equals(_name))
                 {
-                    if (((MFSDirectory)entry).Name.Equals(_name))
-                        return true;
-                }
-            }
-            return false;
-        }
-
-        //Low Level File Management
-        public static bool InsertFile(MFSDisk mfsDisk, byte[] filedata, string name, string dir)
-        {
-            MFSDirectory _dir = GetDirectoryFromPath(mfsDisk, dir);
-
-            return InsertFile(mfsDisk, filedata, name, _dir.DirectoryID);
-        }
-
-        public static bool InsertFile(MFSDisk mfsDisk, byte[] filedata, string name, ushort dir = 0)
-        {
-            string _name = Path.GetFileNameWithoutExtension(name);
-            string _ext = Path.GetExtension(name);
-
-            if (_ext != "")
-                _ext = _ext.Substring(1);
-
-            MFSFile file = new MFSFile(_name, mfsDisk.RAMVolume.Entries[0].CompanyCode, mfsDisk.RAMVolume.Entries[0].GameCode, _ext, (uint)filedata.Length, dir);
-            return InsertFile(mfsDisk, filedata, file);
-        }
-
-        public static bool InsertFile(MFSDisk mfsDisk, byte[] filedata, MFSFile file)
-        {
-            if (CheckFileAlreadyExists(mfsDisk, file.Name, file.Ext, file.ParentDirectory))
-                return false;
-            if (GetFreeSpace(mfsDisk) < filedata.Length)
-                return false;
-
-            int FATentry = -1;
-            int lastFATentry = -1;
-            int offset = 0;
-            for (int i = 6; i < Leo.SIZE_LBA - Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType]; i++)
-            {
-                if (mfsDisk.RAMVolume.FAT[i] == (ushort)MFS.FAT.Unused)
-                {
-                    if (FATentry == -1)
-                    {
-                        FATentry = i;
-                        file.FATEntry = (ushort)i;
-                    }
-                    //Write File Data
-                    Array.Copy(filedata, offset, mfsDisk.Data, mfsDisk.OffsetToMFSRAM + Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType], i), Math.Min(Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + i, 1), filedata.Length - offset));
-                    offset += Math.Min(Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + i, 1), filedata.Length - offset);
-                    if (lastFATentry != -1)
-                    {
-                        mfsDisk.RAMVolume.FAT[lastFATentry] = (ushort)i;
-                    }
-                    if (offset == filedata.Length)
-                    {
-                        mfsDisk.RAMVolume.FAT[i] = (ushort)MFS.FAT.LastFileBlock;
-
-                        mfsDisk.RAMVolume.Entries.Add(file);
-                        return true;
-                    }
-                    lastFATentry = i;
+                    return true;
                 }
             }
             return false;
