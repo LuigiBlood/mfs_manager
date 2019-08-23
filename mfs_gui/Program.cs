@@ -23,7 +23,7 @@ namespace mfs_gui
             Application.Run(mainform);
         }
 
-        public static bool LoadFile(string filepath)
+        public static bool LoadDisk(string filepath)
         {
             disk = new MFSDisk(filepath);
             if (disk.Format != MFS.DiskFormat.Invalid)
@@ -34,6 +34,20 @@ namespace mfs_gui
             loadedfilepath = "";
             disk = null;
             return false;
+        }
+
+        public static bool SaveDisk(string filepath = "")
+        {
+            if (disk == null || disk.Format == MFS.DiskFormat.Invalid)
+                return false;
+
+            if (filepath == "")
+                filepath = loadedfilepath;
+
+            disk.Save(filepath);
+
+            loadedfilepath = filepath;
+            return true;
         }
 
         public static bool GetDirectoryNode(out TreeNode nodes)

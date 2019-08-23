@@ -38,7 +38,7 @@ namespace mfs_gui
             {
                 treeView.Nodes.Clear();
                 listView.Items.Clear();
-                if (Program.LoadFile(ofs.FileName))
+                if (Program.LoadDisk(ofs.FileName))
                 {
                     TreeNode node;
                     if (Program.GetDirectoryNode(out node))
@@ -52,6 +52,21 @@ namespace mfs_gui
                 {
                     MessageBox.Show("Could not load " + ofs.SafeFileName, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Program.SaveDisk();
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Title = "Save as...";
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                Program.SaveDisk(sfd.FileName);
             }
         }
 
