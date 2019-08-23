@@ -90,12 +90,10 @@ namespace mfs_gui
 
         private void listView_DragDrop(object sender, DragEventArgs e)
         {
-            foreach (string file in e.Data.GetFormats()) Console.WriteLine(file);
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
             foreach (string file in files)
             {
                 Program.AddFileToDirectory(current_dir, file);
-                Console.WriteLine(file);
             }
             UpdateTreeView(current_dir);
         }
