@@ -190,7 +190,7 @@ namespace mfs_manager
             return GetDirectoryFromList(mfsDisk, path.Take(path.Length - 1).ToArray(), GetAllDirectoriesFromDirID(mfsDisk, 0xFFFE));
         }
 
-        public static MFSDirectory GetDirectoryFromList(MFSDisk mfsDisk, string[] names, MFSDirectory[] list)
+        private static MFSDirectory GetDirectoryFromList(MFSDisk mfsDisk, string[] names, MFSDirectory[] list)
         {
             foreach (MFSDirectory dir in list)
             {
@@ -248,9 +248,9 @@ namespace mfs_manager
             return null;
         }
 
-        public static string GetFullEntryPath(MFSDisk mfsDisk, MFSEntry file)
+        public static string GetFullPath(MFSDisk mfsDisk, MFSEntry file)
         {
-            string temp = GetDirectoryEntryPath(mfsDisk, file) + file.Name;
+            string temp = GetParentDirectoryPath(mfsDisk, file) + file.Name;
 
             if (file.GetType() == typeof(MFSFile) && ((MFSFile)file).Ext != "")
                 temp += "." + ((MFSFile)file).Ext;
@@ -260,7 +260,7 @@ namespace mfs_manager
             return temp;
         }
 
-        public static string GetDirectoryEntryPath(MFSDisk mfsDisk, MFSEntry file)
+        public static string GetParentDirectoryPath(MFSDisk mfsDisk, MFSEntry file)
         {
             string temp = "";
             ushort dir_id = 0;

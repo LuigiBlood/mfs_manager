@@ -185,7 +185,7 @@ namespace mfs_gui
 
             foreach (MFSFile file in files)
             {
-                MFSRAMUtil.MoveFile(disk, MFSRAMUtil.GetFullEntryPath(disk, file), MFSRAMUtil.GetFullEntryPath(disk, MFSRAMUtil.GetDirectoryFromID(disk, dir)));
+                MFSRAMUtil.MoveFile(disk, MFSRAMUtil.GetFullPath(disk, file), MFSRAMUtil.GetFullPath(disk, MFSRAMUtil.GetDirectoryFromID(disk, dir)));
             }
 
             return true;

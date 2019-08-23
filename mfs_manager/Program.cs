@@ -43,7 +43,7 @@ namespace mfs_manager
                     {
                         if (entry.GetType() == typeof(MFSDirectory))
                         {
-                            Console.WriteLine(((MFSDirectory)entry).DirectoryID + ": " + MFSRAMUtil.GetFullEntryPath(mfsDisk, entry));// + " (" + ((MFSDirectory)entry).CheckShiftJIS() + ")");
+                            Console.WriteLine(((MFSDirectory)entry).DirectoryID + ": " + MFSRAMUtil.GetFullPath(mfsDisk, entry));// + " (" + ((MFSDirectory)entry).CheckShiftJIS() + ")");
                         }
                     }
                 }
@@ -55,7 +55,7 @@ namespace mfs_manager
                     {
                         if (entry.GetType() == typeof(MFSFile))
                         {
-                            Console.WriteLine(MFSRAMUtil.GetFullEntryPath(mfsDisk, entry));
+                            Console.WriteLine(MFSRAMUtil.GetFullPath(mfsDisk, entry));
                         }
                     }
                 }
@@ -84,7 +84,7 @@ namespace mfs_manager
                         {
                             if (entry.GetType() == typeof(MFSFile))
                             {
-                                Console.WriteLine("Extract " + MFSRAMUtil.GetFullEntryPath(mfsDisk, entry));
+                                Console.WriteLine("Extract " + MFSRAMUtil.GetFullPath(mfsDisk, entry));
                                 byte[] data = MFSRAMUtil.ReadFile(mfsDisk, (MFSFile)entry);
                                 FileStream fileExt = new FileStream(".\\extract\\" + entry.Name + (((MFSFile)entry).Ext != "" ? "." : "") + ((MFSFile)entry).Ext, FileMode.Create);
                                 fileExt.Write(data, 0, data.Length);
