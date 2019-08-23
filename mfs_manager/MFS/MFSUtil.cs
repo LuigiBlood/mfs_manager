@@ -254,6 +254,8 @@ namespace mfs_manager
 
             if (file.GetType() == typeof(MFSFile) && ((MFSFile)file).Ext != "")
                 temp += "." + ((MFSFile)file).Ext;
+            else if (file.GetType() == typeof(MFSDirectory))
+                temp += "/";
 
             return temp;
         }

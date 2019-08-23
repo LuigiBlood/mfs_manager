@@ -32,6 +32,7 @@ namespace mfs_manager
                 if (mfsDisk.Format == MFS.DiskFormat.Invalid)
                 {
                     Console.WriteLine("Error loading RAM file");
+                    return;
                 }
 
                 if (args[1].Equals("-d"))

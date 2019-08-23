@@ -23,9 +23,9 @@ namespace mfs_manager
         void Load(string filepath)
         {
             //Assume RAM format for now
+            Format = MFS.DiskFormat.Invalid;
             if (!File.Exists(filepath))
             {
-                Format = MFS.DiskFormat.Invalid;
                 return;
             }
 
@@ -40,7 +40,7 @@ namespace mfs_manager
 
                 if (Encoding.ASCII.GetString(test).Equals(MFS.RAM_ID))
                 {
-                    Format = MFS.DiskFormat.RAM;
+                    //It's a RAM file
                     file.Seek(15, SeekOrigin.Begin);
                     int DiskType = file.ReadByte();
                     if (DiskType >= 0 && DiskType < 6 && Leo.RamSize[DiskType] == file.Length)
@@ -52,15 +52,29 @@ namespace mfs_manager
                         file.Read(Data, 0, Data.Length);
 
                         RAMVolume = new MFSRAMVolume(Data, OffsetToMFSRAM);
-                    }
-                    else
-                    {
-                        Format = MFS.DiskFormat.Invalid;
+                        Format = MFS.DiskFormat.RAM;
                     }
                 }
                 else
                 {
-                    Format = MFS.DiskFormat.Invalid;
+                    //It's maybe a NDD file, try every Disk Type
+                    for (int i = 0; i < 6; i++)
+                    {
+                        int offset = Leo.LBAToByte(i, 0, Leo.RamStartLBA[i]);
+                        file.Seek(offset, SeekOrigin.Begin);
+                        file.Read(test, 0, test.Length);
+                        if (Encoding.ASCII.GetString(test).Equals(MFS.RAM_ID))
+                        {
+                            OffsetToMFSRAM = offset;
+                            Data = new byte[file.Length];
+                            file.Seek(0, SeekOrigin.Begin);
+                            file.Read(Data, 0, Data.Length);
+
+                            RAMVolume = new MFSRAMVolume(Data, OffsetToMFSRAM);
+                            Format = MFS.DiskFormat.SDK;
+                            break;
+                        }
+                    }
                 }
             }
 
