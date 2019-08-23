@@ -62,12 +62,12 @@ namespace mfs_manager
 
             public Date()
             {
-                Year = 1996;
-                Month = 1;
-                Day = 1;
-                Hour = 0;
-                Minute = 0;
-                Second = 0;
+                Year = (uint)DateTime.Now.Year;
+                Month = (uint)DateTime.Now.Month;
+                Day = (uint)DateTime.Now.Day;
+                Hour = (uint)DateTime.Now.Hour;
+                Minute = (uint)DateTime.Now.Minute;
+                Second = (uint)DateTime.Now.Second;
             }
 
             public Date(uint data)
