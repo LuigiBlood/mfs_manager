@@ -47,32 +47,47 @@ namespace mfs_gui
                         treeView.Nodes[0].Expand();
                         treeView.SelectedNode = treeView.Nodes[0];
                     }
+                    this.Text = "64DD MFS Manager - [" + Program.GetDiskFilename() + "]";
                 }
                 else
                 {
                     MessageBox.Show("Could not load " + ofs.SafeFileName, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    current_dir = null;
+                    clipboardfiles = null;
+                    this.Text = "64DD MFS Manager";
                 }
             }
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Program.SaveDisk();
+            if (Program.IsDiskLoaded())
+                Program.SaveDisk();
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (!Program.IsDiskLoaded())
+                return;
+
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Title = "Save as...";
             if (sfd.ShowDialog() == DialogResult.OK)
             {
                 Program.SaveDisk(sfd.FileName);
+                this.Text = "64DD MFS Manager - [" + Program.GetDiskFilename() + "]";
             }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you want to exit 64DD MFS Manager?", "Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                e.Cancel = true;
         }
 
         private void treeView_AfterSelect(object sender, TreeViewEventArgs e)

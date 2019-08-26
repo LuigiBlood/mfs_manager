@@ -23,6 +23,16 @@ namespace mfs_gui
             Application.Run(mainform);
         }
 
+        public static bool IsDiskLoaded()
+        {
+            return (loadedfilepath != "");
+        }
+
+        public static string GetDiskFilename()
+        {
+            return loadedfilepath;
+        }
+
         public static bool LoadDisk(string filepath)
         {
             disk = new MFSDisk(filepath);
