@@ -47,6 +47,8 @@ namespace mfs_gui
                         treeView.Nodes[0].Expand();
                         treeView.SelectedNode = treeView.Nodes[0];
                     }
+                    current_dir = null;
+                    clipboardfiles = null;
                     this.Text = "64DD MFS Manager - [" + Program.GetDiskFilename() + "]";
                 }
                 else
@@ -82,6 +84,11 @@ namespace mfs_gui
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("64DD MFS Manager (GUI) " + Application.ProductVersion + " by LuigiBlood\n\n" + "File Icons by tsukuru cyanu (@tsukurucyanu)", "About...", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -225,10 +232,18 @@ namespace mfs_gui
             MFSFile file = (MFSFile)listView.Items[e.Item].Tag;
             if (e.Label != null)
             {
-                file.Name = Path.GetFileNameWithoutExtension(e.Label);
                 string _ext = Path.GetExtension(e.Label);
                 if (_ext.StartsWith("."))
-                    file.Ext = _ext.Substring(1);
+                    _ext = _ext.Substring(1);
+
+                if (file.Ext != _ext)
+                {
+                    if (MessageBox.Show("Are you sure to change the extension of the file? It may not work as intended.", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                        return;
+                }
+
+                file.Ext = _ext;
+                file.Name = Path.GetFileNameWithoutExtension(e.Label);
             }
             UpdateTreeView(current_dir);
         }

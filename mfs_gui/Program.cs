@@ -14,6 +14,8 @@ namespace mfs_gui
         static string loadedfilepath;
         static MFSDisk disk;
 
+        static char[] symbolsContainer = { '♦', '■', '●', '♥', '♠', '♣', '▼', '♪', '▲', '★' };
+
         [STAThread]
         static void Main()
         {
@@ -67,7 +69,8 @@ namespace mfs_gui
                 return false;
 
             nodes = GetDirectoryTreeNode(MFSRAMUtil.GetDirectoryFromID(disk, 0));
-
+            nodes.ImageIndex = 0;
+            nodes.SelectedImageIndex = 0;
             return true;
         }
 
@@ -75,11 +78,23 @@ namespace mfs_gui
         {
             TreeNode node = new TreeNode(pdir.Name);
             node.Tag = pdir;
+            node.ImageIndex = GetContainerColor(pdir.Name);
+            node.SelectedImageIndex = node.ImageIndex;
             foreach (MFSDirectory dir in MFSRAMUtil.GetAllDirectoriesFromDirID(disk, pdir.DirectoryID))
             {
                 node.Nodes.Add(GetDirectoryTreeNode(dir));
             }
             return node;
+        }
+
+        static int GetContainerColor(string name)
+        {
+            foreach (char c in name)
+            {
+                for (int i = 0; i < symbolsContainer.Length; i++)
+                    if (c == symbolsContainer[i]) return i + 2;
+            }
+            return 1;
         }
 
         public static bool GetAllFilesFromDirectory(MFSDirectory dir, out ListViewItem[] items)
@@ -95,7 +110,9 @@ namespace mfs_gui
             {
                 ListViewItem item = new ListViewItem(file.Name + (file.Ext != "" ? "." + file.Ext : ""));
                 item.Tag = file;
-                item.ImageIndex = 0;
+                item.ImageIndex = mainform.imageListLarge.Images.IndexOfKey(file.Ext);
+                if (item.ImageIndex == -1)
+                    item.ImageIndex = 0;
                 list.Add(item);
             }
 

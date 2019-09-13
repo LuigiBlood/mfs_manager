@@ -37,6 +37,7 @@
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.treeView = new System.Windows.Forms.TreeView();
             this.listView = new System.Windows.Forms.ListView();
@@ -52,6 +53,7 @@
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageListLarge = new System.Windows.Forms.ImageList(this.components);
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.imageListSmall = new System.Windows.Forms.ImageList(this.components);
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.contextMenuStripFile.SuspendLayout();
@@ -60,7 +62,8 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.aboutToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(800, 24);
@@ -82,35 +85,42 @@
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
             this.openToolStripMenuItem.Text = "Open...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
             this.saveAsToolStripMenuItem.Text = "Save as...";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(118, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.aboutToolStripMenuItem.Text = "About...";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
             // tableLayoutPanel1
             // 
@@ -140,9 +150,12 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.treeView.Font = new System.Drawing.Font("Lucida Console", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.treeView.HideSelection = false;
+            this.treeView.ImageIndex = 0;
+            this.treeView.ImageList = this.imageListSmall;
             this.treeView.Location = new System.Drawing.Point(0, 0);
             this.treeView.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.treeView.Name = "treeView";
+            this.treeView.SelectedImageIndex = 0;
             this.treeView.Size = new System.Drawing.Size(237, 400);
             this.treeView.TabIndex = 0;
             this.treeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView_AfterSelect);
@@ -250,7 +263,24 @@
             // 
             this.imageListLarge.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListLarge.ImageStream")));
             this.imageListLarge.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageListLarge.Images.SetKeyName(0, "BlueDisk.ico");
+            this.imageListLarge.Images.SetKeyName(0, "File");
+            this.imageListLarge.Images.SetKeyName(1, "MA2D1");
+            this.imageListLarge.Images.SetKeyName(2, "PSPPM");
+            this.imageListLarge.Images.SetKeyName(3, "PSSEA");
+            this.imageListLarge.Images.SetKeyName(4, "PSDNS");
+            this.imageListLarge.Images.SetKeyName(5, "PSMAS");
+            this.imageListLarge.Images.SetKeyName(6, "TSTLT");
+            this.imageListLarge.Images.SetKeyName(7, "TSTLL");
+            this.imageListLarge.Images.SetKeyName(8, "TSANM");
+            this.imageListLarge.Images.SetKeyName(9, "TSANL");
+            this.imageListLarge.Images.SetKeyName(10, "TSBGA");
+            this.imageListLarge.Images.SetKeyName(11, "TSBGL");
+            this.imageListLarge.Images.SetKeyName(12, "MA3D1");
+            this.imageListLarge.Images.SetKeyName(13, "GSBLK");
+            this.imageListLarge.Images.SetKeyName(14, "GSEXP");
+            this.imageListLarge.Images.SetKeyName(15, "OPT");
+            this.imageListLarge.Images.SetKeyName(16, "CARD");
+            this.imageListLarge.Images.SetKeyName(17, "CRSD");
             // 
             // statusStrip1
             // 
@@ -259,6 +289,23 @@
             this.statusStrip1.Size = new System.Drawing.Size(800, 22);
             this.statusStrip1.TabIndex = 2;
             this.statusStrip1.Text = "statusStrip1";
+            // 
+            // imageListSmall
+            // 
+            this.imageListSmall.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListSmall.ImageStream")));
+            this.imageListSmall.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageListSmall.Images.SetKeyName(0, "GreyDisk");
+            this.imageListSmall.Images.SetKeyName(1, "00");
+            this.imageListSmall.Images.SetKeyName(2, "01");
+            this.imageListSmall.Images.SetKeyName(3, "02");
+            this.imageListSmall.Images.SetKeyName(4, "03");
+            this.imageListSmall.Images.SetKeyName(5, "04");
+            this.imageListSmall.Images.SetKeyName(6, "05");
+            this.imageListSmall.Images.SetKeyName(7, "06");
+            this.imageListSmall.Images.SetKeyName(8, "07");
+            this.imageListSmall.Images.SetKeyName(9, "08");
+            this.imageListSmall.Images.SetKeyName(10, "09");
+            this.imageListSmall.Images.SetKeyName(11, "10");
             // 
             // MainForm
             // 
@@ -295,7 +342,6 @@
         private System.Windows.Forms.TreeView treeView;
         private System.Windows.Forms.ListView listView;
         private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.ImageList imageListLarge;
         private System.Windows.Forms.ToolStripMenuItem extractToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
@@ -306,6 +352,9 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
         public System.Windows.Forms.ContextMenuStrip contextMenuStripFile;
+        public System.Windows.Forms.ImageList imageListLarge;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ImageList imageListSmall;
     }
 }
 

@@ -7,7 +7,7 @@
     <ProjectGuid>{48EC8983-43D6-4686-B33D-FD46FEC8CE8D}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>mfs_gui</RootNamespace>
-    <AssemblyName>64DD MFS Manager %28GUI%29</AssemblyName>
+    <AssemblyName>mfs_gui</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -96,6 +96,37 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icons\BlueDisk.ico" />
+    <Content Include="Icons\Filetypes\CARD.png" />
+    <Content Include="Icons\Filetypes\CRSD.png" />
+    <Content Include="Icons\Filetypes\File.png" />
+    <Content Include="Icons\Filetypes\GSBLK.png" />
+    <Content Include="Icons\Filetypes\GSEXP.png" />
+    <Content Include="Icons\Filetypes\MA2D1.png" />
+    <Content Include="Icons\Filetypes\MA3D1.png" />
+    <Content Include="Icons\Filetypes\OPT.png" />
+    <Content Include="Icons\Filetypes\PSDNS.png" />
+    <Content Include="Icons\Filetypes\PSMAS.png" />
+    <Content Include="Icons\Filetypes\PSPPM.png" />
+    <Content Include="Icons\Filetypes\PSSEA.png" />
+    <Content Include="Icons\Filetypes\TSANL.png" />
+    <Content Include="Icons\Filetypes\TSANM.png" />
+    <Content Include="Icons\Filetypes\TSBGA.png" />
+    <Content Include="Icons\Filetypes\TSBGL.png" />
+    <Content Include="Icons\Filetypes\TSTLL.png" />
+    <Content Include="Icons\Filetypes\TSTLT.png" />
+    <Content Include="Icons\GreyDisk16.png" />
+    <Content Include="Icons\Storage\00.png" />
+    <Content Include="Icons\Storage\01.png" />
+    <Content Include="Icons\Storage\02.png" />
+    <Content Include="Icons\Storage\03.png" />
+    <Content Include="Icons\Storage\04.png" />
+    <Content Include="Icons\Storage\05.png" />
+    <Content Include="Icons\Storage\06.png" />
+    <Content Include="Icons\Storage\07.png" />
+    <Content Include="Icons\Storage\08.png" />
+    <Content Include="Icons\Storage\09.png" />
+    <Content Include="Icons\Storage\10.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
