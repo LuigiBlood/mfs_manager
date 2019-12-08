@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 namespace mfs_manager
 {
@@ -57,10 +58,30 @@ namespace mfs_manager
                 }
                 else
                 {
-                    //It's maybe a NDD file, try every Disk Type
+                    //SHA256 check if N64 Cartridge Port bootloader
+                    byte[] headerTest = new byte[0xFC0];
+                    file.Seek(0x40, SeekOrigin.Begin);
+                    file.Read(headerTest, 0, headerTest.Length);
+
+                    SHA256 hashHeader = SHA256.Create();
+                    hashHeader.ComputeHash(headerTest);
+
+                    string hashHeaderStr = "";
+                    foreach (byte b in hashHeader.Hash)
+                        hashHeaderStr += b.ToString("x2");
+
+                    Console.WriteLine(hashHeaderStr);
+
+                    int offsetStart = 0;
+
+                    //SHA256 = 53c0088fb777870d0af32f0251e964030e2e8b72e830c26042fd191169508c05
+                    if (hashHeaderStr == "53c0088fb777870d0af32f0251e964030e2e8b72e830c26042fd191169508c05")
+                        offsetStart = 0x738C0 - 0x10E8; //Start of User LBA 0 (24 w/ System Area)
+
+                    //Try every Disk Type
                     for (int i = 0; i < 6; i++)
                     {
-                        int offset = Leo.LBAToByte(i, 0, Leo.RamStartLBA[i]);
+                        int offset = Leo.LBAToByte(i, 0, Leo.RamStartLBA[i]) - offsetStart;
                         file.Seek(offset, SeekOrigin.Begin);
                         file.Read(test, 0, test.Length);
                         if (Encoding.ASCII.GetString(test).Equals(MFS.RAM_ID))
@@ -71,7 +92,10 @@ namespace mfs_manager
                             file.Read(Data, 0, Data.Length);
 
                             RAMVolume = new MFSRAMVolume(Data, OffsetToMFSRAM);
-                            Format = MFS.DiskFormat.SDK;
+                            if (offsetStart == 0)
+                                Format = MFS.DiskFormat.SDK;
+                            else
+                                Format = MFS.DiskFormat.N64;
                             break;
                         }
                     }

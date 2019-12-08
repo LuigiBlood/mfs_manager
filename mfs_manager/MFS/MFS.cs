@@ -15,6 +15,7 @@ namespace mfs_manager
             SDK,
             D64,
             RAM,
+            N64,
             Invalid
         }
 
