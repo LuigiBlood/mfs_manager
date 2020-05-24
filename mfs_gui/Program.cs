@@ -129,11 +129,21 @@ namespace mfs_gui
             FileStream file = new FileStream(filepath, FileMode.Open);
             byte[] filedata = new byte[file.Length];
             file.Read(filedata, 0, (int)file.Length);
-
-            MFSRAMUtil.WriteFile(disk, filedata, Path.GetFileName(filepath), dir.DirectoryID);
-
             file.Close();
 
+            return MFSRAMUtil.WriteFile(disk, filedata, Path.GetFileName(filepath), dir.DirectoryID);
+        }
+
+        public static bool AddFilesToDirectory(MFSDirectory dir, string[] filepaths)
+        {
+            foreach (string file in filepaths)
+            {
+                if (Program.AddFileToDirectory(dir, file) == false)
+                {
+                    MessageBox.Show("Could not import " + Path.GetFileName(file) + "\nCancelling file import.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
+                }
+            }
             return true;
         }
 
@@ -216,6 +226,16 @@ namespace mfs_gui
             }
 
             return true;
+        }
+
+        public static int GetCapacitySize()
+        {
+            return MFSRAMUtil.GetCapacitySize(disk);
+        }
+
+        public static int GetUsedSpaceSize()
+        {
+            return MFSRAMUtil.GetTotalUsedSize(disk);
         }
     }
 }

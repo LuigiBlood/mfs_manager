@@ -301,6 +301,24 @@ namespace mfs_manager
             return unused;
         }
 
+        public static int GetCapacitySize(MFSDisk mfsDisk)
+        {
+            int totalsize = 0;
+            for (int i = 6; i < Leo.SIZE_LBA - Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType]; i++)
+            {
+                switch (mfsDisk.RAMVolume.FAT[i])
+                {
+                    case (ushort)MFS.FAT.Prohibited:
+                    case (ushort)MFS.FAT.DontManage:
+                        break;
+                    default:
+                        totalsize += Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + i, 1);
+                        break;
+                }
+            }
+            return totalsize;
+        }
+
         // As there can be multiple files with the same name, it is preferable to input a parent Directory ID.
         public static bool CheckIfFileAlreadyExists(MFSDisk mfsDisk, string _filename, ushort _dir = 0xFFFF)
         {

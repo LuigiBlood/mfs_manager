@@ -19,6 +19,7 @@ namespace mfs_gui
         {
             Copy, Cut
         }
+
         MFSDirectory current_dir;
         MFSFile[] clipboardfiles;
         cliptype clipboardtype;
@@ -59,6 +60,7 @@ namespace mfs_gui
                     clipboardfiles = null;
                     this.Text = "64DD MFS Manager";
                 }
+                UpdateStatusBar();
             }
         }
 
@@ -114,10 +116,7 @@ namespace mfs_gui
         private void listView_DragDrop(object sender, DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            foreach (string file in files)
-            {
-                Program.AddFileToDirectory(current_dir, file);
-            }
+            Program.AddFilesToDirectory(current_dir, files);
             UpdateTreeView(current_dir);
         }
 
@@ -152,10 +151,7 @@ namespace mfs_gui
             if (ofs.ShowDialog() == DialogResult.OK)
             {
                 string[] files = ofs.FileNames;
-                foreach (string file in files)
-                {
-                    Program.AddFileToDirectory(current_dir, file);
-                }
+                Program.AddFilesToDirectory(current_dir, files);
                 UpdateTreeView(current_dir);
             }
         }
@@ -277,6 +273,16 @@ namespace mfs_gui
             if (Program.GetAllFilesFromDirectory(dir, out items))
             {
                 listView.Items.AddRange(items);
+            }
+            UpdateStatusBar();
+        }
+
+        private void UpdateStatusBar()
+        {
+            statusStrip1.Items.Clear();
+            if (Program.IsDiskLoaded())
+            {
+                statusStrip1.Items.Add("Free Space: " + Math.Floor((Program.GetCapacitySize() - Program.GetUsedSpaceSize()) / 100000f) / 10f + " MB");
             }
         }
     }
