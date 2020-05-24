@@ -136,8 +136,28 @@ namespace mfs_gui
                 if (listView.SelectedItems.Count == 1)
                     renameToolStripMenuItem.Enabled = true;
             }
+            if (current_dir != null)
+                importToolStripMenuItem.Enabled = true;
             if (clipboardfiles != null && clipboardfiles.Length > 0)
                 pasteToolStripMenuItem.Enabled = true;
+        }
+
+        private void importToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofs = new OpenFileDialog();
+            ofs.Filter = "All files|*.*";
+            ofs.Title = "Import Files...";
+            ofs.Multiselect = true;
+
+            if (ofs.ShowDialog() == DialogResult.OK)
+            {
+                string[] files = ofs.FileNames;
+                foreach (string file in files)
+                {
+                    Program.AddFileToDirectory(current_dir, file);
+                }
+                UpdateTreeView(current_dir);
+            }
         }
 
         private void extractToolStripMenuItem_Click(object sender, EventArgs e)
