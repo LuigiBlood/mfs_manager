@@ -40,6 +40,9 @@ namespace mfs_gui
                 listView.Items.Clear();
                 if (Program.LoadDisk(ofs.FileName))
                 {
+                    current_dir = null;
+                    clipboardfiles = null;
+
                     TreeNode node;
                     if (Program.GetDirectoryNode(out node))
                     {
@@ -47,8 +50,6 @@ namespace mfs_gui
                         treeView.Nodes[0].Expand();
                         treeView.SelectedNode = treeView.Nodes[0];
                     }
-                    current_dir = null;
-                    clipboardfiles = null;
                     this.Text = "64DD MFS Manager - [" + Program.GetDiskFilename() + "]";
                 }
                 else
