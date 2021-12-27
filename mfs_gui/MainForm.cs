@@ -32,7 +32,7 @@ namespace mfs_gui
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofs = new OpenFileDialog();
-            ofs.Filter = "All Supported Files (*.ndd, *.ndr, *.ram)|*.ndd;*.ndr;*.ram|64DD RAM Area Image (*.ram)|*.ram|64DD Disk Image (*.ndd, *.ndr)|*.ndd;*.ndr|All files|*.*";
+            ofs.Filter = "All Supported Files (*.ndd, *.ndr, *.ram, *.n64, *.z64)|*.ndd;*.ndr;*.ram;*.n64;*.z64|64DD RAM Area Image (*.ram)|*.ram|64DD Disk Image (*.ndd, *.ndr)|*.ndd;*.ndr|N64 Cartridge Port Image (*.n64, *.z64)|*.n64;*.z64|All files|*.*";
             ofs.Title = "Open Disk Image...";
             ofs.Multiselect = false;
             if (ofs.ShowDialog() == DialogResult.OK)
