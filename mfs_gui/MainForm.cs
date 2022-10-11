@@ -30,18 +30,6 @@ namespace mfs_gui
             InitializeComponent();
         }
 
-        private void UpdateFormText()
-        {
-            if (Program.IsDiskLoaded())
-            {
-                this.Text = "64DD MFS Manager - " + (changed ? "*" : "") + "[" + Program.GetDiskFilename() + "]";
-            }
-            else
-            {
-                this.Text = "64DD MFS Manager";
-            }
-        }
-
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofs = new OpenFileDialog();
@@ -315,6 +303,18 @@ namespace mfs_gui
             if (Program.IsDiskLoaded())
             {
                 statusStrip1.Items.Add("Free Space: " + Math.Floor((Program.GetCapacitySize() - Program.GetUsedSpaceSize()) / 100000f) / 10f + " MB");
+            }
+        }
+
+        private void UpdateFormText()
+        {
+            if (Program.IsDiskLoaded())
+            {
+                this.Text = "64DD MFS Manager - " + (changed ? "*" : "") + "[" + Program.GetDiskFilename() + "]";
+            }
+            else
+            {
+                this.Text = "64DD MFS Manager";
             }
         }
     }
