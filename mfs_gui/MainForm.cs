@@ -23,10 +23,23 @@ namespace mfs_gui
         MFSDirectory current_dir;
         MFSFile[] clipboardfiles;
         cliptype clipboardtype;
+        bool changed;
 
         public MainForm()
         {
             InitializeComponent();
+        }
+
+        private void UpdateFormText()
+        {
+            if (Program.IsDiskLoaded())
+            {
+                this.Text = "64DD MFS Manager - " + (changed ? "*" : "") + "[" + Program.GetDiskFilename() + "]";
+            }
+            else
+            {
+                this.Text = "64DD MFS Manager";
+            }
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -51,7 +64,6 @@ namespace mfs_gui
                         treeView.Nodes[0].Expand();
                         treeView.SelectedNode = treeView.Nodes[0];
                     }
-                    this.Text = "64DD MFS Manager - [" + Program.GetDiskFilename() + "]";
                 }
                 else
                 {
@@ -60,6 +72,7 @@ namespace mfs_gui
                     clipboardfiles = null;
                     this.Text = "64DD MFS Manager";
                 }
+                UpdateFormText();
                 UpdateStatusBar();
             }
         }
@@ -67,7 +80,11 @@ namespace mfs_gui
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (Program.IsDiskLoaded())
+            {
                 Program.SaveDisk();
+                changed = false;
+            }
+            UpdateFormText();
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -80,8 +97,9 @@ namespace mfs_gui
             if (sfd.ShowDialog() == DialogResult.OK)
             {
                 Program.SaveDisk(sfd.FileName);
-                this.Text = "64DD MFS Manager - [" + Program.GetDiskFilename() + "]";
+                changed = false;
             }
+            UpdateFormText();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -96,7 +114,7 @@ namespace mfs_gui
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to exit 64DD MFS Manager?", "Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            if (changed && MessageBox.Show("Are you sure you want to exit 64DD MFS Manager?\nYour changes will be lost.", "Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 e.Cancel = true;
         }
 
@@ -118,6 +136,8 @@ namespace mfs_gui
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
             Program.AddFilesToDirectory(current_dir, files);
             UpdateTreeView(current_dir);
+            changed = true;
+            UpdateFormText();
         }
 
         private void contextMenuStripFile_Opening(object sender, CancelEventArgs e)
@@ -153,6 +173,8 @@ namespace mfs_gui
                 string[] files = ofs.FileNames;
                 Program.AddFilesToDirectory(current_dir, files);
                 UpdateTreeView(current_dir);
+                changed = true;
+                UpdateFormText();
             }
         }
 
@@ -200,6 +222,8 @@ namespace mfs_gui
                 }
                 Program.DeleteFiles(files.ToArray());
                 UpdateTreeView(current_dir);
+                changed = true;
+                UpdateFormText();
             }
         }
 
@@ -234,6 +258,8 @@ namespace mfs_gui
             else
                 Program.MoveFiles(clipboardfiles, current_dir.DirectoryID);
             UpdateTreeView(current_dir);
+            changed = true;
+            UpdateFormText();
         }
 
         private void renameToolStripMenuItem_Click(object sender, EventArgs e)
@@ -249,6 +275,7 @@ namespace mfs_gui
             MFSFile file = (MFSFile)listView.Items[e.Item].Tag;
             if (e.Label != null)
             {
+                string _name = Path.GetFileNameWithoutExtension(e.Label);
                 string _ext = Path.GetExtension(e.Label);
                 if (_ext.StartsWith("."))
                     _ext = _ext.Substring(1);
@@ -257,12 +284,17 @@ namespace mfs_gui
                 {
                     if (MessageBox.Show("Are you sure to change the extension of the file? It may not work as intended.", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                         return;
+                    changed = true;
                 }
 
+                if (file.Name != _name)
+                    changed = true;
+
                 file.Ext = _ext;
-                file.Name = Path.GetFileNameWithoutExtension(e.Label);
+                file.Name = _name;
             }
             UpdateTreeView(current_dir);
+            UpdateFormText();
         }
 
         //Other
