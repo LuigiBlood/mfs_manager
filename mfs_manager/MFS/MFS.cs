@@ -16,6 +16,7 @@ namespace mfs_manager
             D64,
             RAM,
             N64,
+            MAME,
             Invalid
         }
 

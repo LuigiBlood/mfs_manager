@@ -32,7 +32,7 @@ namespace mfs_gui
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofs = new OpenFileDialog();
-            ofs.Filter = "All Supported Files (*.ndd, *.ndr, *.ram, *.n64, *.z64)|*.ndd;*.ndr;*.ram;*.n64;*.z64|64DD RAM Area Image (*.ram)|*.ram|64DD Disk Image (*.ndd, *.ndr)|*.ndd;*.ndr|N64 Cartridge Port Image (*.n64, *.z64)|*.n64;*.z64|All files|*.*";
+            ofs.Filter = "All Supported Files (*.ndd, *.ndr, *.ram, *.n64, *.z64, *.disk)|*.ndd;*.ndr;*.ram;*.n64;*.z64;*.disk|64DD RAM Area Image (*.ram)|*.ram|64DD Disk Image (*.ndd, *.ndr, *.disk)|*.ndd;*.ndr;*.disk|N64 Cartridge Port Image (*.n64, *.z64)|*.n64;*.z64|All files|*.*";
             ofs.Title = "Open Disk Image...";
             ofs.Multiselect = false;
             if (ofs.ShowDialog() == DialogResult.OK)
@@ -91,7 +91,7 @@ namespace mfs_gui
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("64DD MFS Manager (GUI) " + Application.ProductVersion + " by LuigiBlood\n\n" + "File Icons by tsukuru cyanu (@tsukurucyanu)", "About...", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("64DD MFS Manager (GUI) " + Application.ProductVersion + " by LuigiBlood", "About...", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)

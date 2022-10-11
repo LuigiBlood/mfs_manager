@@ -27,12 +27,13 @@ namespace mfs_manager
             ushort nextblock = file.FATEntry;
             uint offset = 0;
             uint size = file.Size;
+
+            //Recursively copy blocks
             do
             {
-                int blocksrc = Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType], nextblock);
-                int blocksize = Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + nextblock, 1);
-
-                Array.Copy(mfsDisk.Data, mfsDisk.OffsetToMFSRAM + blocksrc, filedata, offset, Math.Min(blocksize, size));
+                byte[] blockdata = mfsDisk.ReadLBA(Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + nextblock);
+                int blocksize = blockdata.Length;
+                Array.Copy(blockdata, 0, filedata, offset, Math.Min(blocksize, size));
                 offset += (uint)Math.Min(blocksize, size);
                 size -= (uint)Math.Min(blocksize, size);
 
@@ -72,6 +73,8 @@ namespace mfs_manager
             int FATentry = -1;
             int lastFATentry = -1;
             int offset = 0;
+
+            //Write free data on every free block from the start
             for (int i = 6; i < Leo.SIZE_LBA - Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType]; i++)
             {
                 if (mfsDisk.RAMVolume.FAT[i] == (ushort)MFS.FAT.Unused)
@@ -81,9 +84,15 @@ namespace mfs_manager
                         FATentry = i;
                         file.FATEntry = (ushort)i;
                     }
+
                     //Write File Data
-                    Array.Copy(filedata, offset, mfsDisk.Data, mfsDisk.OffsetToMFSRAM + Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType], i), Math.Min(Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + i, 1), filedata.Length - offset));
-                    offset += Math.Min(Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + i, 1), filedata.Length - offset);
+                    byte[] blockdata = new byte[Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + i, 1)];
+                    Array.Copy(filedata, offset, blockdata, 0, Math.Min(blockdata.Length, filedata.Length - offset));
+                    mfsDisk.WriteLBA(Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + i, blockdata);
+
+                    offset += Math.Min(blockdata.Length, filedata.Length - offset);
+
+                    //Change FAT entry
                     if (lastFATentry != -1)
                     {
                         mfsDisk.RAMVolume.FAT[lastFATentry] = (ushort)i;
@@ -112,7 +121,7 @@ namespace mfs_manager
 
         public static bool DeleteFile(MFSDisk mfsDisk, MFSFile file)
         {
-            //Delete FAT Entries
+            //Delete FAT Entries recursively
             ushort nextblock = file.FATEntry;
             ushort lastblock = 0;
             do
