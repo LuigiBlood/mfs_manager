@@ -89,12 +89,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\mfs_manager\mfs_manager.csproj">
-      <Project>{BD3CC0E8-3EA7-4A64-AD41-2D3747F93596}</Project>
-      <Name>mfs_manager</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Icons\BlueDisk.ico" />
     <Content Include="Icons\Filetypes\CARD.png" />
     <Content Include="Icons\Filetypes\CRSD.png" />
@@ -138,6 +132,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\mfs_library\mfs_library.csproj">
+      <Project>{8d1cf3e5-ba0f-4790-ba0a-c52b79302da3}</Project>
+      <Name>mfs_library</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

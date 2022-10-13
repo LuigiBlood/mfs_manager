@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Runtime.CompilerServices;
 
-namespace mfs_manager
+namespace mfs_library
 {
     public class MFSDisk
     {

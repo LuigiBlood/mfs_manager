@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FolderSelect;
-using mfs_manager;
+using mfs_library;
 
 namespace mfs_gui
 {

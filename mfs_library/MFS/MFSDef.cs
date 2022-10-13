@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace mfs_manager
+namespace mfs_library
 {
     public class MFSRAMVolume
     {

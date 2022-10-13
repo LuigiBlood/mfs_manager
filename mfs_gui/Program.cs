@@ -4,7 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using mfs_manager;
+using mfs_library;
 
 namespace mfs_gui
 {
