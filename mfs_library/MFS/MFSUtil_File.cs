@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace mfs_library
 {
-    public static class MFSRAMUtil
+    public static partial class MFSRAMUtil
     {
         // Additional Methods
         public static byte[] ReadFile(MFSDisk mfsDisk, string filepath)
@@ -190,44 +190,6 @@ namespace mfs_library
 
             return null;
         }
-        
-        public static MFSDirectory GetDirectoryFromPath(MFSDisk mfsDisk, string dirpath)
-        {
-            string[] path = dirpath.Split('/');
-            path[0] = "/";
-
-            return GetDirectoryFromList(mfsDisk, path.Take(path.Length - 1).ToArray(), GetAllDirectoriesFromDirID(mfsDisk, 0xFFFE));
-        }
-
-        private static MFSDirectory GetDirectoryFromList(MFSDisk mfsDisk, string[] names, MFSDirectory[] list)
-        {
-            foreach (MFSDirectory dir in list)
-            {
-                if (dir.Name == names[0])
-                {
-                    if (names.Length > 1)
-                        return GetDirectoryFromList(mfsDisk, names.Skip(1).ToArray(), GetAllDirectoriesFromDirID(mfsDisk, dir.DirectoryID));
-                    else
-                        return dir;
-                }
-            }
-            return null;
-        }
-
-        public static MFSDirectory[] GetAllDirectoriesFromDirID(MFSDisk mfsDisk, ushort id)
-        {
-            List<MFSDirectory> list = new List<MFSDirectory>();
-
-            foreach (MFSEntry entry in mfsDisk.RAMVolume.Entries)
-            {
-                if (entry.GetType() == typeof(MFSDirectory) && ((MFSDirectory)entry).ParentDirectory == id)
-                {
-                    list.Add((MFSDirectory)entry);
-                }
-            }
-
-            return list.ToArray();
-        }
 
         public static MFSFile[] GetAllFilesFromDirID(MFSDisk mfsDisk, ushort id)
         {
@@ -243,18 +205,6 @@ namespace mfs_library
             }
 
             return list.ToArray();
-        }
-
-        public static MFSDirectory GetDirectoryFromID(MFSDisk mfsDisk, ushort id)
-        {
-            foreach (MFSEntry entry in mfsDisk.RAMVolume.Entries)
-            {
-                if (entry.GetType() == typeof(MFSDirectory) && ((MFSDirectory)entry).DirectoryID == id)
-                {
-                    return (MFSDirectory)entry;
-                }
-            }
-            return null;
         }
 
         public static string GetFullPath(MFSDisk mfsDisk, MFSEntry file)
@@ -284,50 +234,6 @@ namespace mfs_library
             return temp;
         }
 
-        public static int GetTotalUsedSize(MFSDisk mfsDisk)
-        {
-            int totalsize = 0;
-            for (int i = 6; i < Leo.SIZE_LBA - Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType]; i++)
-            {
-                switch (mfsDisk.RAMVolume.FAT[i])
-                {
-                    case (ushort)MFS.FAT.Unused:
-                    case (ushort)MFS.FAT.Prohibited:
-                    case (ushort)MFS.FAT.DontManage:
-                        break;
-                    default:
-                        totalsize += Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + i, 1);
-                        break;
-                }
-            }
-            return totalsize;
-        }
-
-        public static int GetFreeSpaceSize(MFSDisk mfsDisk)
-        {
-            int unused = Leo.RamSize[mfsDisk.RAMVolume.DiskType] - GetTotalUsedSize(mfsDisk) - Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType], 6);
-
-            return unused;
-        }
-
-        public static int GetCapacitySize(MFSDisk mfsDisk)
-        {
-            int totalsize = 0;
-            for (int i = 6; i < Leo.SIZE_LBA - Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType]; i++)
-            {
-                switch (mfsDisk.RAMVolume.FAT[i])
-                {
-                    case (ushort)MFS.FAT.Prohibited:
-                    case (ushort)MFS.FAT.DontManage:
-                        break;
-                    default:
-                        totalsize += Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + i, 1);
-                        break;
-                }
-            }
-            return totalsize;
-        }
-
         // As there can be multiple files with the same name, it is preferable to input a parent Directory ID.
         public static bool CheckIfFileAlreadyExists(MFSDisk mfsDisk, string _filename, ushort _dir = 0xFFFF)
         {
@@ -345,19 +251,6 @@ namespace mfs_library
             foreach (MFSFile file in GetAllFilesFromDirID(mfsDisk, _dir))
             {
                 if (file.Name.Equals(_name) && file.Ext.Equals(_ext))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        // As there can be multiple directories with the same name, it is preferable to input a parent Directory ID. 
-        public static bool CheckIfDirectoryAlreadyExists(MFSDisk mfsDisk, string _name, ushort _dir = 0xFFFF)
-        {
-            foreach (MFSDirectory entry in GetAllDirectoriesFromDirID(mfsDisk, _dir))
-            {
-                if (entry.Name.Equals(_name))
                 {
                     return true;
                 }
