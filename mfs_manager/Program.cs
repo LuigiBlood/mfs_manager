@@ -30,6 +30,8 @@ namespace mfs_manager
             else if (args.Length >= 2)
             {
                 MFSDisk mfsDisk = new MFSDisk(args[0]);
+                string savefilename = Path.ChangeExtension(args[0], ".new" + Path.GetExtension(args[0]));
+
                 if (mfsDisk.Format == MFS.DiskFormat.Invalid)
                 {
                     Console.WriteLine("Error loading RAM file");
@@ -115,7 +117,7 @@ namespace mfs_manager
                         Console.WriteLine("Could not insert file");
                     else
                         Console.WriteLine("File " + Path.GetFileName(args[2]) + " inserted successfully");
-                    mfsDisk.Save(args[0] + ".new.ram");
+                    mfsDisk.Save(savefilename);
                 }
                 else if (args[1].Equals("-r"))
                 {
@@ -126,7 +128,7 @@ namespace mfs_manager
                         if (MFSRAMUtil.DeleteFile(mfsDisk, args[2]))
                         {
                             Console.WriteLine("Done");
-                            mfsDisk.Save(args[0] + ".new.ram");
+                            mfsDisk.Save(savefilename);
                         }
                         else
                         {
@@ -140,7 +142,7 @@ namespace mfs_manager
                     if (MFSRAMUtil.MoveFile(mfsDisk, args[2], args[3]))
                     {
                         Console.WriteLine("Done");
-                        mfsDisk.Save(args[0] + ".new.ram");
+                        mfsDisk.Save(savefilename);
                     }
                     else
                         Console.WriteLine("File was not moved/renamed successfully");
