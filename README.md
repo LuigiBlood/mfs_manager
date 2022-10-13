@@ -1,8 +1,9 @@
 # 64DD MFS Manager
 
-Contains two projects:
-- **mfs_manager**: the main command line project and library
-- **mfs_gui**: the user friendly version
+Contains three projects:
+- **mfs_library**: the main library for disk and MFS access
+- **mfs_manager**: the command line utility project
+- **mfs_gui**: the user friendly utility
 
 This software can be used to manage files in 64DD titles that uses MFS for save data.
 You can import, extract, copy, move and rename files.
