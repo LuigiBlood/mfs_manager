@@ -280,7 +280,7 @@ namespace mfs_library
         {
             List<byte> array = new List<byte>();
 
-            for (int lba = Leo.RamStartLBA[DiskType]; lba < Leo.MAX_LBA; lba++)
+            for (int lba = Leo.RamStartLBA[DiskType]; lba <= Leo.MAX_LBA; lba++)
             {
                 array.AddRange(ReadLBA(lba));
             }

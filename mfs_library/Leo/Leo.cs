@@ -113,7 +113,7 @@ namespace mfs_library
                     totalbytes += blkbytes;
                     lba++;
                     init_flag = false;
-                    if ((lba_count != 0) && (lba > MAX_LBA))
+                    if ((lba_count > 1) && (lba > MAX_LBA))
                     {
                         return -1;
                     }
