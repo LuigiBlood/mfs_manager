@@ -84,6 +84,11 @@ namespace mfs_library
         /* Calculate byte size from LBA x to LBA x+y */
         public static int LBAToByte(int disktype, int startlba, int nlbas)
         {
+            if (disktype < 0 && disktype > 7) throw new ArgumentOutOfRangeException("Disk Type out of range", disktype.ToString());
+            if (startlba < 0 && startlba > Leo.MAX_LBA) throw new ArgumentOutOfRangeException("LBA Start out of range", startlba.ToString());
+            if (nlbas < 0 && nlbas > Leo.MAX_LBA) throw new ArgumentOutOfRangeException("LBA Amount out of range", nlbas.ToString());
+            if ((startlba + nlbas) < 0 && (startlba + nlbas) > Leo.MAX_LBA) throw new ArgumentOutOfRangeException("LBA Start out of range", (startlba + nlbas).ToString());
+
             int totalbytes = 0;
             bool init_flag = true;
             int vzone = 1;
@@ -124,6 +129,8 @@ namespace mfs_library
 
         public static int LBAToMAMEOffset(int lba, byte[] sysData)
         {
+            if (lba < 0 && lba > Leo.MAX_LBA) throw new ArgumentOutOfRangeException("LBA out of range", lba.ToString());
+
             int head, track, block;
             LBAToPhys(lba, sysData, out head, out track, out block);
             return PhysToMAMEOffset(head, track, block, 0);
@@ -136,15 +143,19 @@ namespace mfs_library
             int trackRelative = track - PZONE_TRACK[pzone];
 
             int offsetCalc = MAMEOffsetTable[pzone + (head * 8)];
-            offsetCalc += BLOCK_SIZE[pzone] * 2 * trackRelative;
-            offsetCalc += block * BLOCK_SIZE[pzone];
-            offsetCalc += sector * SECTOR_SIZE[pzone];
+            offsetCalc += BLOCK_SIZE[pzone + head] * 2 * trackRelative;
+            offsetCalc += block * BLOCK_SIZE[pzone + head];
+            offsetCalc += sector * SECTOR_SIZE[pzone + head];
+
+            if (offsetCalc >= 0x435B0C0) throw new ArgumentOutOfRangeException("Offset Result is out of bounds.", "0x" + offsetCalc.ToString("X"));
 
             return offsetCalc;
         }
 
         public static void LBAToPhys(int lba, byte[] sysData, out int head, out int track, out int block)
         {
+            if (lba < 0 && lba > Leo.MAX_LBA) throw new ArgumentOutOfRangeException("LBA out of range", lba.ToString());
+
             //Get Disk Type
             int diskType = sysData[0x05] & 0x0F;
 

@@ -32,7 +32,7 @@ namespace mfs_manager
                 MFSDisk mfsDisk = new MFSDisk(args[0]);
                 string savefilename = Path.ChangeExtension(args[0], ".new" + Path.GetExtension(args[0]));
 
-                if (mfsDisk.Format == MFS.DiskFormat.Invalid)
+                if (mfsDisk.Disk.Format == LeoDisk.DiskFormat.Invalid)
                 {
                     Console.WriteLine("Error loading RAM file");
                     return;

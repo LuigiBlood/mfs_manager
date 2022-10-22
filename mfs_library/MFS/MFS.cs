@@ -10,16 +10,6 @@ namespace mfs_library
     public static class MFS
     {
         //MFS Volume
-        public enum DiskFormat
-        {
-            SDK,
-            D64,
-            RAM,
-            N64,
-            MAME,
-            Invalid
-        }
-
         public struct VolumeAttr
         {
             public bool isWriteProtected;          //Filesystem is Write Protected

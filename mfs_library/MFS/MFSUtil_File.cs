@@ -31,7 +31,7 @@ namespace mfs_library
             //Recursively copy blocks
             do
             {
-                byte[] blockdata = mfsDisk.ReadLBA(Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + nextblock);
+                byte[] blockdata = mfsDisk.Disk.ReadLBA(Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + nextblock);
                 int blocksize = blockdata.Length;
                 Array.Copy(blockdata, 0, filedata, offset, Math.Min(blocksize, size));
                 offset += (uint)Math.Min(blocksize, size);
@@ -88,7 +88,7 @@ namespace mfs_library
                     //Write File Data
                     byte[] blockdata = new byte[Leo.LBAToByte(mfsDisk.RAMVolume.DiskType, Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + i, 1)];
                     Array.Copy(filedata, offset, blockdata, 0, Math.Min(blockdata.Length, filedata.Length - offset));
-                    mfsDisk.WriteLBA(Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + i, blockdata);
+                    mfsDisk.Disk.WriteLBA(Leo.RamStartLBA[mfsDisk.RAMVolume.DiskType] + i, blockdata);
 
                     offset += Math.Min(blockdata.Length, filedata.Length - offset);
 

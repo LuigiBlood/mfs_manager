@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Leo\LeoDisk.cs" />
     <Compile Include="MFS\MFS.cs" />
     <Compile Include="MFS\MFSDef.cs" />
     <Compile Include="MFS\MFSDisk.cs" />
@@ -48,7 +49,7 @@
     <Compile Include="MFS\MFSUtil_File.cs" />
     <Compile Include="MFS\MFSUtil_Other.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Util\Leo.cs" />
+    <Compile Include="Leo\Leo.cs" />
     <Compile Include="Util\SJISUtil.cs" />
     <Compile Include="Util\Util.cs" />
   </ItemGroup>
