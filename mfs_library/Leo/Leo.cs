@@ -17,6 +17,9 @@ namespace mfs_library
 
         public const int BLOCKS_PER_TRACK = 2;
 
+        public const int DISK_SIZE_MAME = 0x435B0C0;
+        public const int DISK_SIZE_SDK = 0x3DEC800;
+
         /* LBA to Disk System Data (Retail) */
         public static readonly int[] LBA_SYS_PROD = { 0, 1, 8, 9 };
 
@@ -147,7 +150,7 @@ namespace mfs_library
             offsetCalc += block * BLOCK_SIZE[pzone + head];
             offsetCalc += sector * SECTOR_SIZE[pzone + head];
 
-            if (offsetCalc >= 0x435B0C0) throw new ArgumentOutOfRangeException("Offset Result is out of bounds.", "0x" + offsetCalc.ToString("X"));
+            if (offsetCalc >= DISK_SIZE_MAME) throw new ArgumentOutOfRangeException("Offset Result is out of bounds.", "0x" + offsetCalc.ToString("X"));
 
             return offsetCalc;
         }

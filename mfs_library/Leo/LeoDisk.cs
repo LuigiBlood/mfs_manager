@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using static mfs_library.MFS;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace mfs_library
 {
@@ -22,9 +23,17 @@ namespace mfs_library
             Invalid
         }
 
+        public enum FileSystem
+        {
+            MFS,
+            ATNFS,
+            Invalid
+        }
+
         public string Filename;
-        public LeoDisk.DiskFormat Format;
-        public int OffsetToMFSRAM;
+        public DiskFormat Format;
+        public FileSystem RAMFileSystem;
+        public int OffsetToRamArea;
         public int OffsetToSysData;
         public int DiskType;
         public byte[] Data;
@@ -36,8 +45,11 @@ namespace mfs_library
 
         void Load(string filepath)
         {
-            //Assume RAM format for now
+            //Assume file is bad first
             Format = DiskFormat.Invalid;
+            RAMFileSystem = FileSystem.Invalid;
+            OffsetToSysData = -1;
+            OffsetToRamArea = -1;
             if (!File.Exists(filepath))
             {
                 return;
@@ -45,38 +57,16 @@ namespace mfs_library
 
             FileStream file = new FileStream(filepath, FileMode.Open);
 
-            if (file.Length >= Leo.RamSize[5])
+            if (file.Length > Leo.RamSize[0])
             {
-                //Check Header
-                file.Seek(0, SeekOrigin.Begin);
-                byte[] test = new byte[MFS.RAM_ID.Length];
-                file.Read(test, 0, test.Length);
-
-                if (Encoding.ASCII.GetString(test).Equals(MFS.RAM_ID))
+                //Perform System Area heuristics if the file size is MAME or SDK
+                bool correctSysData = false;
+                byte[] sysData = new byte[Leo.SECTOR_SIZE[0]];
+                if ((file.Length == Leo.DISK_SIZE_MAME) || (file.Length == Leo.DISK_SIZE_SDK))
                 {
-                    //It's a RAM file
-                    file.Seek(15, SeekOrigin.Begin);
-                    int DiskType = file.ReadByte();
-                    if (DiskType >= 0 && DiskType < 6 && Leo.RamSize[DiskType] == file.Length)
-                    {
-                        file.Seek(0, SeekOrigin.Begin);
-
-                        OffsetToMFSRAM = 0;
-                        Data = new byte[file.Length];
-                        file.Read(Data, 0, Data.Length);
-
-                        this.DiskType = DiskType;
-                        Format = DiskFormat.RAM;
-                    }
-                }
-                else if (file.Length == 0x435B0C0)
-                {
-                    //It's a MAME disk format file
                     //Check each System Data Block
-                    bool correctSysData = false;
-
+                    
                     //Check Retail SysData
-                    byte[] sysData = new byte[Leo.SECTOR_SIZE[0]];
                     foreach (int lba in Leo.LBA_SYS_PROD)
                     {
                         OffsetToSysData = Leo.BLOCK_SIZE[0] * lba;
@@ -143,31 +133,38 @@ namespace mfs_library
                             if (correctSysData) break;
                         }
                     }
+                }
+
+                if (file.Length == Leo.DISK_SIZE_MAME)
+                {
+                    /* --- Check if it's MAME Format --- */
 
                     //if SysData found
                     if (correctSysData)
                     {
-                        int diskType = sysData[0x5] & 0xF;
-                        int offset = Leo.LBAToMAMEOffset(Leo.RamStartLBA[diskType], sysData);
-                        file.Seek(offset, SeekOrigin.Begin);
-                        file.Read(test, 0, test.Length);
-                        //See if equal to RAM_ID, and if so, it is found.
-                        if (Encoding.ASCII.GetString(test).Equals(MFS.RAM_ID))
-                        {
-                            OffsetToMFSRAM = 0;
+                        DiskType = sysData[0x5] & 0xF;
+                        Format = DiskFormat.MAME;
+                        OffsetToRamArea = -1;
+                        //Data is good.
+                    }
+                }
+                else if (file.Length == Leo.DISK_SIZE_SDK)
+                {
+                    /* --- Check if it's SDK Format --- */
 
-                            //Copy full file
-                            Data = new byte[file.Length];
-                            file.Seek(0, SeekOrigin.Begin);
-                            file.Read(Data, 0, Data.Length);
-
-                            this.DiskType = diskType;
-                            Format = DiskFormat.MAME;
-                        }
+                    //if SysData found
+                    if (correctSysData)
+                    {
+                        DiskType = sysData[0x5] & 0xF;
+                        Format = DiskFormat.SDK;
+                        OffsetToRamArea = Leo.LBAToByte(DiskType, 0, Leo.RamStartLBA[DiskType]);
+                        //Data is good.
                     }
                 }
                 else
                 {
+                    /* --- Check if it's N64 CART Format --- */
+
                     //SHA256 check if N64 Cartridge Port bootloader
                     byte[] headerTest = new byte[0xFC0];
                     file.Seek(0x40, SeekOrigin.Begin);
@@ -186,35 +183,57 @@ namespace mfs_library
 
                     //SHA256 = 53c0088fb777870d0af32f0251e964030e2e8b72e830c26042fd191169508c05
                     if (hashHeaderStr == "53c0088fb777870d0af32f0251e964030e2e8b72e830c26042fd191169508c05")
+                    {
                         offsetStart = 0x738C0 - 0x10E8; //Start of User LBA 0 (24 w/ System Area)
 
-                    //Try every Disk Type
-                    for (int i = 0; i < 6; i++)
-                    {
-                        //Try Offset to MFS RAM Partition
-                        int offset = Leo.LBAToByte(i, 0, Leo.RamStartLBA[i]) - offsetStart;
-                        file.Seek(offset, SeekOrigin.Begin);
-                        file.Read(test, 0, test.Length);
-                        //See if equal to RAM_ID, and if so, it is found.
-                        if (Encoding.ASCII.GetString(test).Equals(MFS.RAM_ID))
-                        {
-                            OffsetToMFSRAM = offset;
-                            Data = new byte[file.Length];
-                            file.Seek(0, SeekOrigin.Begin);
-                            file.Read(Data, 0, Data.Length);
+                        file.Seek(0x1000, SeekOrigin.Begin);
+                        file.Read(sysData, 0, sysData.Length);
 
-                            DiskType = i;
-                            if (offsetStart == 0)
-                                Format = DiskFormat.SDK;
-                            else
-                                Format = DiskFormat.N64;
-                            break;
-                        }
+                        DiskType = sysData[0x5] & 0xF;
+                        Format = DiskFormat.N64;
+                        OffsetToRamArea = Leo.LBAToByte(DiskType, 0, Leo.RamStartLBA[DiskType]) - offsetStart;
+                        OffsetToSysData = 0x1000;
+                        //Data is good.
                     }
                 }
             }
+            else
+            {
+                /* --- Check if it's RAM Format --- */
+                if (Array.Exists(Leo.RamSize, x => x == file.Length))
+                {
+                    DiskType = Array.FindIndex(Leo.RamSize, x => x == file.Length);
+                    Format = DiskFormat.RAM;
+                    OffsetToRamArea = 0;
+                    //Data is good.
+                }
+            }
+
+            if (Format != DiskFormat.Invalid)
+            {
+                //Copy full file
+                Data = new byte[file.Length];
+                file.Seek(0, SeekOrigin.Begin);
+                file.Read(Data, 0, Data.Length);
+                //Disk is considered loaded here.
+            }
 
             file.Close();
+
+            /* Check RAM FileSystem */
+            if (Format != DiskFormat.Invalid)
+            {
+                //MultiFileSystem
+                byte[] test = new byte[MFS.RAM_ID.Length];
+                byte[] firstRAM = ReadLBA(Leo.RamStartLBA[DiskType]);
+                Array.Copy(firstRAM, test, test.Length);
+
+                //See if equal to RAM_ID, and if so, it is found.
+                if (Encoding.ASCII.GetString(test).Equals(MFS.RAM_ID))
+                {
+                    RAMFileSystem = FileSystem.MFS;
+                }
+            }
         }
 
         public void Save(string filepath)
@@ -238,7 +257,7 @@ namespace mfs_library
             }
             else
             {
-                int sourceOffset = Leo.LBAToByte(DiskType, Leo.RamStartLBA[DiskType], lba - Leo.RamStartLBA[DiskType]) + OffsetToMFSRAM;
+                int sourceOffset = Leo.LBAToByte(DiskType, Leo.RamStartLBA[DiskType], lba - Leo.RamStartLBA[DiskType]) + OffsetToRamArea;
                 Array.Copy(Data, sourceOffset, output, 0, output.Length);
             }
 
@@ -262,7 +281,7 @@ namespace mfs_library
             }
             else
             {
-                int destOffset = Leo.LBAToByte(DiskType, Leo.RamStartLBA[DiskType], lba - Leo.RamStartLBA[DiskType]) + OffsetToMFSRAM;
+                int destOffset = Leo.LBAToByte(DiskType, Leo.RamStartLBA[DiskType], lba - Leo.RamStartLBA[DiskType]) + OffsetToRamArea;
                 Array.Copy(data, 0, Data, destOffset, blockSize);
             }
         }
