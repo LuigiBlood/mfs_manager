@@ -17,14 +17,24 @@ namespace mfs_library
 
         public MFSDisk(string filepath)
         {
-            Load(filepath);
+            //Load Disk
+            Disk = new LeoDisk(filepath);
+            LoadRAMVolume();
         }
 
-        void Load(string filepath)
+        public MFSDisk(LeoDisk disk)
         {
-            Disk = new LeoDisk(filepath);
+            //Reuse already loaded disk
+            Disk = disk;
+            LoadRAMVolume();
+        }
 
+        void LoadRAMVolume()
+        {
+            //Load RAM Volume
             if (Disk.Format == LeoDisk.DiskFormat.Invalid)
+                return;
+            if (Disk.RAMFileSystem != LeoDisk.FileSystem.MFS)
                 return;
 
             RAMVolume = new MFSRAMVolume(Disk.GetRAMAreaArray(), 0);
@@ -32,8 +42,8 @@ namespace mfs_library
 
         public void Save(string filepath)
         {
+            //Save RAM Volume FAT Table into Disk data
             byte[] volume = RAMVolume.SaveToArray();
-
             int offset = 0;
             for (int i = 0; i < 3; i++)
             {
@@ -52,6 +62,7 @@ namespace mfs_library
                 offset += temp.Length;
             }
 
+            //Save the Disk data
             Disk.Save(filepath);
         }
     }
