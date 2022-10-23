@@ -257,6 +257,7 @@ namespace mfs_library
             }
             else
             {
+                if (OffsetToRamArea < 0) return null;
                 int sourceOffset = Leo.LBAToByte(DiskType, Leo.RamStartLBA[DiskType], lba - Leo.RamStartLBA[DiskType]) + OffsetToRamArea;
                 Array.Copy(Data, sourceOffset, output, 0, output.Length);
             }
@@ -281,6 +282,7 @@ namespace mfs_library
             }
             else
             {
+                if (OffsetToRamArea < 0) return;
                 int destOffset = Leo.LBAToByte(DiskType, Leo.RamStartLBA[DiskType], lba - Leo.RamStartLBA[DiskType]) + OffsetToRamArea;
                 Array.Copy(data, 0, Data, destOffset, blockSize);
             }
@@ -288,6 +290,8 @@ namespace mfs_library
 
         public byte[] GetSystemData()
         {
+            if (OffsetToSysData < 0) return null;
+
             byte[] sysData = new byte[Leo.SECTOR_SIZE[0]];
 
             Array.Copy(Data, OffsetToSysData, sysData, 0, sysData.Length);
@@ -297,6 +301,8 @@ namespace mfs_library
 
         public byte[] GetRAMAreaArray()
         {
+            if (OffsetToRamArea < 0) return null;
+
             List<byte> array = new List<byte>();
 
             for (int lba = Leo.RamStartLBA[DiskType]; lba <= Leo.MAX_LBA; lba++)
