@@ -27,7 +27,8 @@ namespace mfs_gui
 
         public static bool IsDiskLoaded()
         {
-            return (loadedfilepath != "");
+            if (disk == null) return false;
+            return (disk.Disk.RAMFileSystem == LeoDisk.FileSystem.MFS);
         }
 
         public static string GetDiskFilename()
@@ -37,14 +38,13 @@ namespace mfs_gui
 
         public static bool LoadDisk(string filepath)
         {
-            disk = new MFSDisk(filepath);
-            if (disk.Disk.Format != LeoDisk.DiskFormat.Invalid)
+            MFSDisk disk_temp = new MFSDisk(filepath);
+            if (disk_temp.Disk.RAMFileSystem == LeoDisk.FileSystem.MFS)
             {
                 loadedfilepath = filepath;
+                disk = disk_temp;
                 return true;
             }
-            loadedfilepath = "";
-            disk = null;
             return false;
         }
 

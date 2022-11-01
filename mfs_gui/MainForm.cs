@@ -38,10 +38,11 @@ namespace mfs_gui
             ofs.Multiselect = false;
             if (ofs.ShowDialog() == DialogResult.OK)
             {
-                treeView.Nodes.Clear();
-                listView.Items.Clear();
                 if (Program.LoadDisk(ofs.FileName))
                 {
+                    treeView.Nodes.Clear();
+                    listView.Items.Clear();
+
                     current_dir = null;
                     clipboardfiles = null;
 
@@ -56,9 +57,6 @@ namespace mfs_gui
                 else
                 {
                     MessageBox.Show("Could not load " + ofs.SafeFileName, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    current_dir = null;
-                    clipboardfiles = null;
-                    this.Text = "64DD MFS Manager";
                 }
                 UpdateFormText();
                 UpdateStatusBar();
