@@ -34,7 +34,13 @@ namespace mfs_manager
 
                 if (mfsDisk.Disk.Format == LeoDisk.DiskFormat.Invalid)
                 {
-                    Console.WriteLine("Error loading RAM file");
+                    Console.WriteLine("Disk file is invalid.");
+                    return;
+                }
+
+                if (mfsDisk.Disk.RAMFileSystem != LeoDisk.FileSystem.MFS)
+                {
+                    Console.WriteLine("Disk file is not using MFS.");
                     return;
                 }
 
