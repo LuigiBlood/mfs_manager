@@ -40,8 +40,8 @@ namespace mfs_gui
             {
                 if (Program.LoadDisk(ofs.FileName))
                 {
-                    treeView.Nodes.Clear();
-                    listView.Items.Clear();
+                    treeViewMFS.Nodes.Clear();
+                    listViewMFS.Items.Clear();
 
                     current_dir = null;
                     clipboardfiles = null;
@@ -49,9 +49,9 @@ namespace mfs_gui
                     TreeNode node;
                     if (Program.GetDirectoryNode(out node))
                     {
-                        treeView.Nodes.Add(node);
-                        treeView.Nodes[0].Expand();
-                        treeView.SelectedNode = treeView.Nodes[0];
+                        treeViewMFS.Nodes.Add(node);
+                        treeViewMFS.Nodes[0].Expand();
+                        treeViewMFS.SelectedNode = treeViewMFS.Nodes[0];
                     }
                 }
                 else
@@ -132,13 +132,13 @@ namespace mfs_gui
             {
                 test.Enabled = false;
             }
-            if (listView.SelectedItems.Count > 0)
+            if (listViewMFS.SelectedItems.Count > 0)
             {
                 extractToolStripMenuItem.Enabled = true;
                 cutToolStripMenuItem.Enabled = true;
                 copyToolStripMenuItem.Enabled = true;
                 deleteToolStripMenuItem.Enabled = true;
-                if (listView.SelectedItems.Count == 1)
+                if (listViewMFS.SelectedItems.Count == 1)
                     renameToolStripMenuItem.Enabled = true;
             }
             if (current_dir != null)
@@ -166,7 +166,7 @@ namespace mfs_gui
 
         private void extractToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (listView.SelectedItems.Count > 1)
+            if (listViewMFS.SelectedItems.Count > 1)
             {
                 //More than one file
                 FolderSelectDialog fsd = new FolderSelectDialog();
@@ -174,7 +174,7 @@ namespace mfs_gui
                 if (fsd.ShowDialog())
                 {
                     List<MFSFile> files = new List<MFSFile>();
-                    foreach (ListViewItem item in listView.SelectedItems)
+                    foreach (ListViewItem item in listViewMFS.SelectedItems)
                     {
                         files.Add((MFSFile)item.Tag);
                     }
@@ -182,10 +182,10 @@ namespace mfs_gui
                         MessageBox.Show("Files are extracted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
-            else if (listView.SelectedItems.Count == 1)
+            else if (listViewMFS.SelectedItems.Count == 1)
             {
                 //Only one file
-                MFSFile file = (MFSFile)listView.SelectedItems[0].Tag;
+                MFSFile file = (MFSFile)listViewMFS.SelectedItems[0].Tag;
                 SaveFileDialog sfd = new SaveFileDialog();
                 sfd.Title = "Export File...";
                 sfd.FileName = file.Name + (file.Ext != "" ? "." + file.Ext : "");
@@ -199,10 +199,10 @@ namespace mfs_gui
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (listView.SelectedItems.Count > 0)
+            if (listViewMFS.SelectedItems.Count > 0)
             {
                 List<MFSFile> files = new List<MFSFile>();
-                foreach (ListViewItem item in listView.SelectedItems)
+                foreach (ListViewItem item in listViewMFS.SelectedItems)
                 {
                     files.Add((MFSFile)item.Tag);
                 }
@@ -216,7 +216,7 @@ namespace mfs_gui
         private void cutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             List<MFSFile> files = new List<MFSFile>();
-            foreach (ListViewItem item in listView.SelectedItems)
+            foreach (ListViewItem item in listViewMFS.SelectedItems)
             {
                 files.Add((MFSFile)item.Tag);
             }
@@ -228,7 +228,7 @@ namespace mfs_gui
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)
         {
             List<MFSFile> files = new List<MFSFile>();
-            foreach (ListViewItem item in listView.SelectedItems)
+            foreach (ListViewItem item in listViewMFS.SelectedItems)
             {
                 files.Add((MFSFile)item.Tag);
             }
@@ -250,15 +250,15 @@ namespace mfs_gui
 
         private void renameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (listView.SelectedItems.Count == 1)
+            if (listViewMFS.SelectedItems.Count == 1)
             {
-                listView.SelectedItems[0].BeginEdit();
+                listViewMFS.SelectedItems[0].BeginEdit();
             }
         }
 
         private void listView_AfterLabelEdit(object sender, LabelEditEventArgs e)
         {
-            MFSFile file = (MFSFile)listView.Items[e.Item].Tag;
+            MFSFile file = (MFSFile)listViewMFS.Items[e.Item].Tag;
             if (e.Label != null)
             {
                 string _name = Path.GetFileNameWithoutExtension(e.Label);
@@ -287,10 +287,10 @@ namespace mfs_gui
         private void UpdateTreeView(MFSDirectory dir)
         {
             ListViewItem[] items;
-            listView.Items.Clear();
+            listViewMFS.Items.Clear();
             if (Program.GetAllFilesFromDirectory(dir, out items))
             {
-                listView.Items.AddRange(items);
+                listViewMFS.Items.AddRange(items);
             }
             UpdateStatusBar();
         }
