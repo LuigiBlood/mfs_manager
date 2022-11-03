@@ -247,6 +247,7 @@ namespace mfs_library
         {
             //Do not read anywhere before RAM Area
             if (lba < Leo.RamStartLBA[DiskType]) return null;
+            if (lba > Leo.MAX_LBA) return null;
 
             //Read Block
             byte[] output = new byte[Leo.LBAToByte(DiskType, lba, 1)];
@@ -269,6 +270,7 @@ namespace mfs_library
         {
             //Do not write anywhere before RAM Area
             if (lba < Leo.RamStartLBA[DiskType]) return;
+            if (lba > Leo.MAX_LBA) return;
 
             //Check if data block is exact size of the expected LBA block size
             int blockSize = Leo.LBAToByte(DiskType, lba, 1);
