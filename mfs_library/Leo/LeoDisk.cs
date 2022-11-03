@@ -223,15 +223,19 @@ namespace mfs_library
             /* Check RAM FileSystem */
             if (Format != DiskFormat.Invalid)
             {
-                //MultiFileSystem
-                byte[] test = new byte[MFS.RAM_ID.Length];
-                byte[] firstRAM = ReadLBA(Leo.RamStartLBA[DiskType]);
-                Array.Copy(firstRAM, test, test.Length);
-
-                //See if equal to RAM_ID, and if so, it is found.
-                if (Encoding.ASCII.GetString(test).Equals(MFS.RAM_ID))
+                //Only check if RAM Area exists (Disk Type 6 has no RAM area)
+                if (DiskType < 6)
                 {
-                    RAMFileSystem = FileSystem.MFS;
+                    //MultiFileSystem
+                    byte[] test = new byte[MFS.RAM_ID.Length];
+                    byte[] firstRAM = ReadLBA(Leo.RamStartLBA[DiskType]);
+                    Array.Copy(firstRAM, test, test.Length);
+
+                    //See if equal to RAM_ID, and if so, it is found.
+                    if (Encoding.ASCII.GetString(test).Equals(MFS.RAM_ID))
+                    {
+                        RAMFileSystem = FileSystem.MFS;
+                    }
                 }
             }
         }
