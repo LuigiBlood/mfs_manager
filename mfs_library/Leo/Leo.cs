@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace mfs_library
 {
-    static class Leo
+    public static class Leo
     {
         public const int MAX_LBA = 0x10DB;
         public const int SIZE_LBA = MAX_LBA + 1;
