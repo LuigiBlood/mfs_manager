@@ -144,7 +144,7 @@ namespace mfs_library
                     {
                         DiskType = sysData[0x5] & 0xF;
                         Format = DiskFormat.MAME;
-                        OffsetToRamArea = -1;
+                        OffsetToRamArea = 0;
                         //Data is good.
                     }
                 }
