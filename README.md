@@ -4,6 +4,7 @@ Contains three projects:
 - **mfs_library**: the main library for disk and MFS access
 - **mfs_manager**: the command line utility project
 - **mfs_gui**: the user friendly utility
+- **save_manager**: basic RAW import/export of disk RAM area
 
 This software can be used to manage files in 64DD titles that uses MFS for save data.
 You can import, extract, copy, move and rename files.

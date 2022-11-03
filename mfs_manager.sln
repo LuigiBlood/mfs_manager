@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mfs_gui", "mfs_gui\mfs_gui.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mfs_library", "mfs_library\mfs_library.csproj", "{8D1CF3E5-BA0F-4790-BA0A-C52B79302DA3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "save_manager", "save_manager\save_manager.csproj", "{DBC89E4D-7A97-47FB-AA34-2A7613A3B17C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{8D1CF3E5-BA0F-4790-BA0A-C52B79302DA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D1CF3E5-BA0F-4790-BA0A-C52B79302DA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D1CF3E5-BA0F-4790-BA0A-C52B79302DA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBC89E4D-7A97-47FB-AA34-2A7613A3B17C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBC89E4D-7A97-47FB-AA34-2A7613A3B17C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBC89E4D-7A97-47FB-AA34-2A7613A3B17C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBC89E4D-7A97-47FB-AA34-2A7613A3B17C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
