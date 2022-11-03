@@ -238,6 +238,8 @@ namespace mfs_library
                     }
                 }
             }
+
+            Filename = filepath;
         }
 
         public void Save(string filepath)
