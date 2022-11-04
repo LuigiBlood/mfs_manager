@@ -1,0 +1,39 @@
+﻿64DD MFS Manager
+
+Changelog:
+v1.3.0.0:
+- mfs_library: Refactored a lot of classes and other processes
+- mfs_library: Add MA2D1 Image conversion
+- mfs_manager: Add check for MFS Filesystem
+- mfs_gui: Do not unload/reload when you try to load another disk
+- mfs_gui: Add automatic image import conversion
+- mfs_gui: Add image export conversion
+- save_manager: Added
+
+v1.2.1.1:
+- mfs_library: Fix off-by-one error that prevents reading the last LBA of the disk
+
+v1.2.1.0:
+- mfs_library: Create library using mfs_manager functions and refactoring.
+- mfs_library: Seperate Disk management from MFSDisk class into its own class (LeoDisk).
+- mfs_library: Fix offset calculation with MAME Disk format access (Critical)
+- mfs_manager: Process extension change based on filename and extension.
+
+v1.2.0.0:
+- Support MAME format disk images (used by Ares for saves)
+- Rudimentary code to keep track of changes for saving and also to only provide a prompt when exiting if the changes were not saved.
+
+v0.0.3.1:
+- Add forgotten N64 Cartridge Port support to the File Loading window
+
+v0.0.3.0:
+- Fixed locked Drag & Drop import after loading a disk.
+- Added Import option into the right click menu.
+- Show Free Space size on status bar.
+- Warn when files cannot be imported.
+
+v0.0.2.0:
+- Cartridge Port ROM support
+
+v0.0.1.0:
+- Initial release
