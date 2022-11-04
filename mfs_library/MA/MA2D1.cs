@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Security.Cryptography;
+using System.IO;
 
 namespace mfs_library.MA
 {
@@ -39,7 +40,24 @@ namespace mfs_library.MA
             {
                 //Yay1
 
-                //TODO
+                MemoryStream str = new MemoryStream(bytes);
+                str.Seek(0x490, SeekOrigin.Begin);
+                byte[] decomp = Yay1.Decompress(str);
+
+                int width = Convert.ToInt32(header.Substring(4, 3));
+                int height = Convert.ToInt32(header.Substring(7, 3));
+                int size = Convert.ToInt32(header.Substring(10, 6));
+
+                bitmap = new Bitmap(width, height);
+
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        ushort color = (ushort)((decomp[(y * width * 2) + (x * 2)] << 8) + decomp[(y * width * 2) + (x * 2) + 1]);
+                        bitmap.SetPixel(x, y, RGBA16ToColor(color));
+                    }
+                }
             }
 
             return bitmap;
