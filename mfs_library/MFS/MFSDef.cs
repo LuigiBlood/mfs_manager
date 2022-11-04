@@ -172,6 +172,11 @@ namespace mfs_library
 
             return temp;
         }
+
+        public virtual string GetEntryName()
+        {
+            return Name;
+        }
     }
 
     public class MFSDirectory : MFSEntry
@@ -240,6 +245,11 @@ namespace mfs_library
             temp[0x29] = CopyNb;
             temp[0] |= 0x40;
             return temp;
+        }
+
+        public override string GetEntryName()
+        {
+            return Name + "." + Ext;
         }
     }
 }
