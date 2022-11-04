@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using FolderSelect;
 using mfs_library;
+using static System.Net.WebRequestMethods;
 
 namespace mfs_gui
 {
@@ -140,6 +141,17 @@ namespace mfs_gui
                 deleteToolStripMenuItem.Enabled = true;
                 if (listViewMFS.SelectedItems.Count == 1)
                     renameToolStripMenuItem.Enabled = true;
+
+                List<string> files = new List<string>();
+                foreach (ListViewItem item in listViewMFS.SelectedItems)
+                {
+                    files.Add(((MFSFile)item.Tag).GetEntryName());
+                }
+                if (Program.CanExportConvertFiles(files.ToArray()))
+                {
+                    convertFilesToolStripMenuItem.Enabled = true;
+                }
+
             }
             if (current_dir != null)
                 importToolStripMenuItem.Enabled = true;
@@ -193,6 +205,44 @@ namespace mfs_gui
                 {
                     if (Program.SaveFile(file, sfd.FileName))
                         MessageBox.Show("File is extracted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+        }
+
+        private void convertFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (listViewMFS.SelectedItems.Count > 1)
+            {
+                //More than one file
+                FolderSelectDialog fsd = new FolderSelectDialog();
+                fsd.Title = "Convert File(s)...";
+                if (fsd.ShowDialog())
+                {
+                    List<MFSFile> files = new List<MFSFile>();
+                    foreach (ListViewItem item in listViewMFS.SelectedItems)
+                    {
+                        files.Add((MFSFile)item.Tag);
+                    }
+                    if (Program.ExportConvertFiles(files.ToArray(), fsd.FileName))
+                        MessageBox.Show("Files are converted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            else if (listViewMFS.SelectedItems.Count == 1)
+            {
+                //Only one file
+                MFSFile file = (MFSFile)listViewMFS.SelectedItems[0].Tag;
+                if (!Program.CanExportConvertFile(file.GetEntryName()))
+                {
+                    return;
+                }
+                SaveFileDialog sfd = new SaveFileDialog();
+                sfd.Title = "Convert File...";
+                sfd.FileName = file.GetEntryName() + ".png";
+                sfd.Filter = "Image File (*.png)|*.png";
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    if (Program.ExportConvertFile(file, sfd.FileName))
+                        MessageBox.Show("File is converted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
         }

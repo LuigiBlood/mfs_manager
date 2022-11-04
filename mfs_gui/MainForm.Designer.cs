@@ -56,6 +56,8 @@
             this.tableLayoutPanelMFS = new System.Windows.Forms.TableLayoutPanel();
             this.treeViewMFS = new System.Windows.Forms.TreeView();
             this.listViewMFS = new System.Windows.Forms.ListView();
+            this.convertFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip1.SuspendLayout();
             this.contextMenuStripFile.SuspendLayout();
             this.panelMFS.SuspendLayout();
@@ -147,6 +149,8 @@
             this.contextMenuStripFile.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.importToolStripMenuItem,
             this.extractToolStripMenuItem,
+            this.toolStripSeparator5,
+            this.convertFilesToolStripMenuItem,
             this.toolStripSeparator2,
             this.cutToolStripMenuItem,
             this.copyToolStripMenuItem,
@@ -156,7 +160,7 @@
             this.toolStripSeparator4,
             this.deleteToolStripMenuItem});
             this.contextMenuStripFile.Name = "contextMenuStripFile";
-            this.contextMenuStripFile.Size = new System.Drawing.Size(154, 176);
+            this.contextMenuStripFile.Size = new System.Drawing.Size(181, 226);
             this.contextMenuStripFile.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripFile_Opening);
             // 
             // importToolStripMenuItem
@@ -324,6 +328,19 @@
             this.listViewMFS.DragDrop += new System.Windows.Forms.DragEventHandler(this.listView_DragDrop);
             this.listViewMFS.DragEnter += new System.Windows.Forms.DragEventHandler(this.listView_DragEnter);
             // 
+            // convertFilesToolStripMenuItem
+            // 
+            this.convertFilesToolStripMenuItem.Enabled = false;
+            this.convertFilesToolStripMenuItem.Name = "convertFilesToolStripMenuItem";
+            this.convertFilesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.convertFilesToolStripMenuItem.Text = "Convert File(s)...";
+            this.convertFilesToolStripMenuItem.Click += new System.EventHandler(this.convertFilesToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(177, 6);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -376,6 +393,8 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelMFS;
         private System.Windows.Forms.TreeView treeViewMFS;
         private System.Windows.Forms.ListView listViewMFS;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripMenuItem convertFilesToolStripMenuItem;
     }
 }
 

@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using mfs_library;
+using System.Drawing;
 
 namespace mfs_gui
 {
@@ -126,12 +127,29 @@ namespace mfs_gui
             {
                 return false;
             }
-            FileStream file = new FileStream(filepath, FileMode.Open);
-            byte[] filedata = new byte[file.Length];
-            file.Read(filedata, 0, (int)file.Length);
-            file.Close();
 
-            return MFSRAMUtil.WriteFile(disk, filedata, Path.GetFileName(filepath), dir.DirectoryID);
+            bool error;
+            if (!CanImportConvertFile(filepath))
+            {
+                byte[] filedata = File.ReadAllBytes(filepath);
+                error = MFSRAMUtil.WriteFile(disk, filedata, Path.GetFileName(filepath), dir.DirectoryID);
+            }
+            else
+            {
+                byte[] filedata;
+                string filename;
+
+                if (ImportConvertFile(filepath, out filedata, out filename))
+                {
+                    error = MFSRAMUtil.WriteFile(disk, filedata, filename, dir.DirectoryID);
+                }
+                else
+                {
+                    error = false;
+                }
+            }
+
+            return error;
         }
 
         public static bool AddFilesToDirectory(MFSDirectory dir, string[] filepaths)
@@ -145,6 +163,98 @@ namespace mfs_gui
                 }
             }
             return true;
+        }
+
+        public static bool ImportConvertFile(string filepath, out byte[] bytes, out string filename)
+        {
+            if (!CanImportConvertFile(filepath))
+            {
+                bytes = null;
+                filename = null;
+                return false;
+            }
+
+            Bitmap input = new Bitmap(filepath);
+
+            bytes = mfs_library.MA.MA2D1.ConvertToMA2D1(input);
+            filename = Path.GetFileNameWithoutExtension(filepath) + ".MA2D1";
+
+            input.Dispose();
+
+            return true;
+        }
+
+        public static bool CanImportConvertFile(string filepath)
+        {
+            switch (Path.GetExtension(filepath).ToLower())
+            {
+                case ".png":
+                case ".bmp":
+                case ".jpg":
+                case ".jpeg":
+                    return true;
+            }
+            return false;
+        }
+
+        public static bool CanImportConvertFiles(string[] filepaths)
+        {
+            foreach (string s in filepaths)
+            {
+                switch (Path.GetExtension(s).ToLower())
+                {
+                    case ".png":
+                    case ".bmp":
+                    case ".jpg":
+                    case ".jpeg":
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool ExportConvertFile(MFSFile file, string filepath)
+        {
+            if (!CanExportConvertFile(file.GetEntryName())) return false;
+
+            var input = LoadFileData(file);
+
+            Bitmap output = mfs_library.MA.MA2D1.ConvertToBitmap(input);
+            output.Save(filepath);
+            output.Dispose();
+            return true;
+        }
+
+        public static bool ExportConvertFiles(MFSFile[] file, string folderpath)
+        {
+            foreach (MFSFile f in file)
+            {
+                ExportConvertFile(f, folderpath + "\\" + f.GetEntryName() + ".png");
+            }
+            return true;
+        }
+
+        public static bool CanExportConvertFile(string filepath)
+        {
+            switch (Path.GetExtension(filepath).ToLower())
+            {
+                case ".ma2d1":
+                    return true;
+            }
+            return false;
+        }
+
+        public static bool CanExportConvertFiles(string[] filepaths)
+        {
+            foreach (string s in filepaths)
+            {
+                switch (Path.GetExtension(s).ToLower())
+                {
+                    case ".ma2d1":
+                        return true;
+                }
+            }
+            return false;
         }
 
         public static byte[] LoadFileData(MFSFile file)
