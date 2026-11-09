@@ -1,4 +1,4 @@
-﻿64DD MFS Manager v1.3.0.0
+﻿64DD MFS Manager v1.4.0.0
 
 This contains the following:
 - mfs_library: the main library for disk and MFS access
