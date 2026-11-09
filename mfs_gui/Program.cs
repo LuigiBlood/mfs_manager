@@ -220,7 +220,7 @@ namespace mfs_gui
             var input = LoadFileData(file);
 
             Bitmap output = mfs_library.MA.MA2D1.ConvertToBitmap(input);
-            output.Save(filepath);
+            output.Save(StringUtil.ReplaceInvalidChars(filepath));
             output.Dispose();
             return true;
         }
@@ -229,14 +229,14 @@ namespace mfs_gui
         {
             foreach (MFSFile f in file)
             {
-                ExportConvertFile(f, folderpath + "\\" + f.GetEntryName() + ".png");
+                ExportConvertFile(f, folderpath + "\\" + StringUtil.ReplaceInvalidChars(f.GetEntryName() + ".png"));
             }
             return true;
         }
 
         public static bool CanExportConvertFile(string filepath)
         {
-            switch (Path.GetExtension(filepath).ToLower())
+            switch (StringUtil.GetExtension(filepath).ToLower())
             {
                 case ".ma2d1":
                     return true;
@@ -248,11 +248,8 @@ namespace mfs_gui
         {
             foreach (string s in filepaths)
             {
-                switch (Path.GetExtension(s).ToLower())
-                {
-                    case ".ma2d1":
-                        return true;
-                }
+                if (CanExportConvertFile(s))
+                    return true;
             }
             return false;
         }
@@ -272,7 +269,7 @@ namespace mfs_gui
             foreach (MFSFile file in files)
             {
                 byte[] filedata = MFSRAMUtil.ReadFile(disk, file);
-                FileStream fileout = new FileStream(folderpath + "\\" + file.Name + (file.Ext != "" ? "." + file.Ext : ""), FileMode.Create);
+                FileStream fileout = new FileStream(StringUtil.ReplaceInvalidChars(folderpath + "\\" + file.Name + (file.Ext != "" ? "." + file.Ext : "")), FileMode.Create);
                 fileout.Write(filedata, 0, filedata.Length);
                 fileout.Close();
             }
@@ -301,7 +298,7 @@ namespace mfs_gui
             }
 
             byte[] filedata = MFSRAMUtil.ReadFile(disk, file);
-            FileStream fileout = new FileStream(filepath, FileMode.Create);
+            FileStream fileout = new FileStream(StringUtil.ReplaceInvalidChars(filepath), FileMode.Create);
             fileout.Write(filedata, 0, filedata.Length);
             fileout.Close();
 

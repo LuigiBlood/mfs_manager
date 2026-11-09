@@ -77,7 +77,8 @@ namespace mfs_manager
                         byte[] data = MFSRAMUtil.ReadFile(mfsDisk, args[2]);
                         if (data != null)
                         {
-                            FileStream fileExt = new FileStream(".\\extract\\" + Path.GetFileName(args[2]), FileMode.Create);
+                            string outPath = StringUtil.ReplaceInvalidChars(".\\extract\\" + Path.GetFileName(args[2]));
+                            FileStream fileExt = new FileStream(outPath, FileMode.Create);
                             fileExt.Write(data, 0, data.Length);
                             fileExt.Close();
                             Console.WriteLine("Done");
@@ -95,7 +96,8 @@ namespace mfs_manager
                             {
                                 Console.WriteLine("Extract " + MFSRAMUtil.GetFullPath(mfsDisk, entry));
                                 byte[] data = MFSRAMUtil.ReadFile(mfsDisk, (MFSFile)entry);
-                                FileStream fileExt = new FileStream(".\\extract\\" + entry.Name + (((MFSFile)entry).Ext != "" ? "." : "") + ((MFSFile)entry).Ext, FileMode.Create);
+                                string outPath = StringUtil.ReplaceInvalidChars(".\\extract\\" + entry.Name + (((MFSFile)entry).Ext != "" ? "." : "") + ((MFSFile)entry).Ext);
+                                FileStream fileExt = new FileStream(outPath, FileMode.Create);
                                 fileExt.Write(data, 0, data.Length);
                                 fileExt.Close();
                             }

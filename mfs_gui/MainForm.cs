@@ -200,7 +200,7 @@ namespace mfs_gui
                 MFSFile file = (MFSFile)listViewMFS.SelectedItems[0].Tag;
                 SaveFileDialog sfd = new SaveFileDialog();
                 sfd.Title = "Export File...";
-                sfd.FileName = file.Name + (file.Ext != "" ? "." + file.Ext : "");
+                sfd.FileName = StringUtil.ReplaceInvalidChars(file.Name + (file.Ext != "" ? "." + file.Ext : ""));
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
                     if (Program.SaveFile(file, sfd.FileName))
@@ -237,7 +237,7 @@ namespace mfs_gui
                 }
                 SaveFileDialog sfd = new SaveFileDialog();
                 sfd.Title = "Convert File...";
-                sfd.FileName = file.GetEntryName() + ".png";
+                sfd.FileName = StringUtil.ReplaceInvalidChars(file.GetEntryName() + ".png");
                 sfd.Filter = "Image File (*.png)|*.png";
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
@@ -311,8 +311,8 @@ namespace mfs_gui
             MFSFile file = (MFSFile)listViewMFS.Items[e.Item].Tag;
             if (e.Label != null)
             {
-                string _name = Path.GetFileNameWithoutExtension(e.Label);
-                string _ext = Path.GetExtension(e.Label);
+                string _name = StringUtil.GetFileNameWithoutExtension(e.Label);
+                string _ext = StringUtil.GetExtension(e.Label);
                 if (_ext.StartsWith("."))
                     _ext = _ext.Substring(1);
 
