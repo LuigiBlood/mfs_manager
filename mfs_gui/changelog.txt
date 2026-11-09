@@ -1,6 +1,10 @@
 ﻿64DD MFS Manager
 
 Changelog:
+v1.4.0.1:
+- all: change version to a common version
+- mfs_manager: Fix full extraction
+
 v1.4.0.0:
 - mfs_library: Add StringUtil class
 - mfs_manager: Replace invalid chars in file paths when extracting
